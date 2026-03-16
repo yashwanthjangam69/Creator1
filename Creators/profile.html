@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complete Your Profile — Creator Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+:root{
+  --bg: #f0f5fb;
+  --white: #ffffff;
+  --blue: #2f6bcd;
+  --blue-mid: #b8cef5;
+  --text: #1a2540;
+  --muted: #7b90b8;
+  --border: #dce8f8;
+  --error: #e05c5c;
+  --success: #2e9e6b;
+}
+
+body{
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before{
+  content:'';
+  position:fixed;
+  top:-100px;
+  right:-100px;
+  width:500px;
+  height:500px;
+  background: radial-gradient(circle, rgba(47,107,205,0.08) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+body::after{
+  content:'';
+  position:fixed;
+  bottom:-120px;
+  left:-80px;
+  width:400px;
+  height:400px;
+  background: radial-gradient(circle, rgba(47,107,205,0.06) 0%, transparent 70%);
+  pointer-events:none;
+}
+
+.wrapper{
+  width:100%;
+  max-width:420px;
+  position:relative;
+  z-index:1;
+  animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both;
+}
+
+@keyframes fadeUp{
+  from{ opacity:0; transform:translateY(24px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+/* Brand */
+.brand{
+  text-align:center;
+  margin-bottom:32px;
+}
+
+.logo{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:52px;
+  height:52px;
+  background: linear-gradient(135deg, var(--blue), #5b9cf6);
+  border-radius:14px;
+  margin-bottom:18px;
+  box-shadow: 0 8px 24px rgba(47,107,205,0.25);
+}
+
+.logo svg{
+  width:26px;
+  height:26px;
+  fill:white;
+}
+
+.brand h1{
+  font-family:'Playfair Display', serif;
+  font-size:24px;
+  font-weight:600;
+  color:var(--text);
+  letter-spacing:-0.01em;
+}
+
+.brand p{
+  color:var(--muted);
+  font-size:14px;
+  margin-top:8px;
+  font-weight:300;
+  line-height:1.5;
+}
+
+/* Step indicator */
+.steps{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  margin-bottom:28px;
+}
+
+.step{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:12px;
+  font-weight:500;
+  color:var(--muted);
+}
+
+.step-dot{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+  font-weight:600;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  color: var(--muted);
+}
+
+.step.done .step-dot{
+  background: #e8f5ee;
+  border-color: #b6e8d2;
+  color: var(--success);
+}
+
+.step.active .step-dot{
+  background: linear-gradient(135deg, var(--blue), #5b9cf6);
+  border-color: transparent;
+  color: white;
+}
+
+.step.active{
+  color: var(--text);
+  font-weight:500;
+}
+
+.step-line{
+  width:32px;
+  height:1.5px;
+  background: var(--border);
+}
+
+/* Card */
+.card{
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:32px 28px;
+  box-shadow: 0 4px 24px rgba(47,107,205,0.08);
+}
+
+.form-group{
+  margin-bottom:18px;
+}
+
+label{
+  display:block;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:0.06em;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin-bottom:7px;
+}
+
+.input-wrap{
+  position:relative;
+}
+
+.input-prefix{
+  position:absolute;
+  left:14px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);
+  font-size:15px;
+  pointer-events:none;
+}
+
+input{
+  width:100%;
+  padding:13px 15px;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  color:var(--text);
+  font-family:'Inter', sans-serif;
+  font-size:15px;
+  outline:none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+input.has-prefix{
+  padding-left:34px;
+}
+
+input:focus{
+  border-color:var(--blue-mid);
+  background:white;
+  box-shadow:0 0 0 4px rgba(47,107,205,0.08);
+}
+
+input::placeholder{
+  color:#b0c0d8;
+}
+
+/* Category grid */
+.category-grid{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:10px;
+  margin-top:2px;
+}
+
+.cat-option{
+  padding:11px 14px;
+  background:var(--bg);
+  border:1.5px solid var(--border);
+  border-radius:10px;
+  font-family:'Inter', sans-serif;
+  font-size:13px;
+  font-weight:400;
+  color:var(--muted);
+  cursor:pointer;
+  text-align:center;
+  transition: all 0.2s;
+  user-select:none;
+}
+
+.cat-option:hover{
+  border-color:var(--blue-mid);
+  color:var(--blue);
+  background:white;
+}
+
+.cat-option.selected{
+  background: linear-gradient(135deg, rgba(47,107,205,0.08), rgba(91,156,246,0.08));
+  border-color:var(--blue-mid);
+  color:var(--blue);
+  font-weight:500;
+}
+
+.btn{
+  width:100%;
+  padding:14px;
+  margin-top:24px;
+  background: linear-gradient(135deg, var(--blue), #5b9cf6);
+  color:white;
+  border:none;
+  border-radius:10px;
+  font-family:'Inter', sans-serif;
+  font-size:14px;
+  font-weight:500;
+  letter-spacing:0.02em;
+  cursor:pointer;
+  transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px rgba(47,107,205,0.3);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:48px;
+}
+
+.btn:hover{
+  opacity:0.92;
+  transform:translateY(-1px);
+  box-shadow: 0 6px 20px rgba(47,107,205,0.35);
+}
+
+.btn:active{ transform:translateY(0); }
+
+.btn:disabled{
+  opacity:0.6;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.btn-loader{
+  display:none;
+  width:16px;
+  height:16px;
+  border:2px solid rgba(255,255,255,0.35);
+  border-top-color:white;
+  border-radius:50%;
+  animation:spin 0.65s linear infinite;
+}
+
+@keyframes spin{ to{ transform:rotate(360deg); } }
+
+.msg{
+  display:none;
+  padding:12px 15px;
+  border-radius:10px;
+  font-size:13px;
+  margin-top:16px;
+  text-align:center;
+  line-height:1.4;
+}
+
+.msg.error{
+  background:#fef2f2;
+  border:1px solid #fcd6d6;
+  color:var(--error);
+  display:block;
+}
+
+.msg.success{
+  background:#f0faf6;
+  border:1px solid #b6e8d2;
+  color:var(--success);
+  display:block;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrapper">
+
+  <div class="brand">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+      </svg>
+    </div>
+    <h1>Complete Your Profile</h1>
+    <p>Just a few details to get you started.</p>
+  </div>
+
+  <!-- Step indicator -->
+  <div class="steps">
+    <div class="step done">
+      <div class="step-dot">✓</div>
+      <span>Account</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step active">
+      <div class="step-dot">2</div>
+      <span>Profile</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step">
+      <div class="step-dot">3</div>
+      <span>Dashboard</span>
+    </div>
+  </div>
+
+  <div class="card">
+
+    <div class="form-group">
+      <label>Your Name</label>
+      <input id="name" type="text" placeholder="e.g. Priya Sharma">
+    </div>
+
+    <div class="form-group">
+      <label>Instagram Username</label>
+      <div class="input-wrap">
+        <span class="input-prefix">@</span>
+        <input id="instagram" type="text" class="has-prefix" placeholder="yourhandle">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Content Category</label>
+      <div class="category-grid" id="categoryGrid">
+        <div class="cat-option" onclick="selectCategory(this, 'Beauty')">💄 Beauty</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Fashion')">👗 Fashion</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Fitness')">💪 Fitness</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Food')">🍜 Food</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Travel')">✈️ Travel</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Education')">📚 Education</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Technology')">💻 Technology</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Finance')">📈 Finance</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Lifestyle')">🌿 Lifestyle</div>
+        <div class="cat-option" onclick="selectCategory(this, 'Entertainment')">🎬 Entertainment</div>
+      </div>
+    </div>
+
+    <button class="btn" id="saveBtn" onclick="saveProfile()">
+      <span id="saveText">Save &amp; Continue</span>
+      <div class="btn-loader" id="saveLoader"></div>
+    </button>
+
+    <div class="msg" id="saveMsg"></div>
+
+  </div>
+
+</div>
+
+<script>
+
+let selectedCategory = null
+
+// Redirect if not logged in
+async function checkAuth(){
+  const { data } = await client.auth.getSession()
+  if(!data.session) window.location = 'index.html'
+
+  // Pre-fill if profile already exists
+  const user = data.session.user
+  const { data: profile } = await client
+    .from('profiles')
+    .select('name, instagram, category')
+    .eq('id', user.id)
+    .single()
+
+  if(profile){
+    if(profile.name) document.getElementById('name').value = profile.name
+    if(profile.instagram) document.getElementById('instagram').value = profile.instagram
+    if(profile.category) selectCategoryByValue(profile.category)
+  }
+}
+
+function selectCategory(el, value){
+  document.querySelectorAll('.cat-option').forEach(o => o.classList.remove('selected'))
+  el.classList.add('selected')
+  selectedCategory = value
+}
+
+function selectCategoryByValue(value){
+  document.querySelectorAll('.cat-option').forEach(o => {
+    if(o.textContent.includes(value)){
+      o.classList.add('selected')
+      selectedCategory = value
+    }
+  })
+}
+
+function showMsg(message, type){
+  const el = document.getElementById('saveMsg')
+  el.textContent = message
+  el.className = 'msg ' + type
+}
+
+function setLoading(isLoading){
+  document.getElementById('saveBtn').disabled = isLoading
+  document.getElementById('saveLoader').style.display = isLoading ? 'block' : 'none'
+  document.getElementById('saveText').style.display = isLoading ? 'none' : 'inline'
+}
+
+async function saveProfile(){
+  const name = document.getElementById('name').value.trim()
+  const instagram = document.getElementById('instagram').value.trim().replace(/^@/, '')
+
+  if(!name){ showMsg('Please enter your name.', 'error'); return }
+  if(!instagram){ showMsg('Please enter your Instagram username.', 'error'); return }
+  if(!selectedCategory){ showMsg('Please select a content category.', 'error'); return }
+
+  setLoading(true)
+
+  const { data: sessionData } = await client.auth.getSession()
+  const user = sessionData.session.user
+
+  const { error } = await client
+    .from('profiles')
+    .upsert({
+      id: user.id,
+      name: name,
+      email: user.email,
+      instagram: instagram,
+      category: selectedCategory,
+      created_at: new Date().toISOString()
+    }, { onConflict: 'id' })
+
+  setLoading(false)
+
+ if(error){
+   showMsg(error.message, 'error')
+ } else {
+   showMsg('✓ Profile saved!', 'success')
+   setTimeout(() => window.location = 'dashboard.html', 1000)
+ }
+}
+
+checkAuth()
+
+</script>
+
+</body>
+</html>
