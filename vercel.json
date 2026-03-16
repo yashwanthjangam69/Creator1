@@ -1,3 +1,7 @@
 {
-  
+  "outputDirectory": "Creators",
+  "rewrites": [
+    { "source": "/api/scrape", "destination": "/Creators/api/scrape.js" },
+    { "source": "/api/test", "destination": "/Creators/api/test.js" }
+  ]
 }
