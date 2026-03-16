@@ -24,7 +24,7 @@
   --blue-light: #e8f0fc;
   --blue-mid: #b8cef5;
   --text: #1a2540;
-  --muted: #7b90b8;
+  --muted: #0b487f;
   --border: #dce8f8;
   --success: #2e9e6b;
 }
@@ -489,28 +489,6 @@ function showDashboard(profile, snapshot){
       <div class="hero-sub">Here's what you can do with your Creator Intelligence today.</div>
     </div>
 
-    <div class="profile-pill">
-      ${picHtml}
-      <div class="profile-pill-info">
-        <div class="profile-pill-handle">@${snapshot.instagram_username}</div>
-        <div class="profile-pill-followers">${formatCount(snapshot.followers_count)} followers</div>
-      </div>
-    </div>
-
-    <div class="stats-row">
-      <div class="stat-box">
-        <div class="stat-box-value">${formatCount(snapshot.followers_count)}</div>
-        <div class="stat-box-label">Followers</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-box-value">${formatCount(snapshot.following_count)}</div>
-        <div class="stat-box-label">Following</div>
-      </div>
-      <div class="stat-box">
-        <div class="stat-box-value">${formatCount(snapshot.posts_count)}</div>
-        <div class="stat-box-label">Posts</div>
-      </div>
-    </div>
 
     <div class="section-title">Your tools</div>
 
