@@ -1,7 +1,7 @@
-const { createClient } = require("@supabase/supabase-js")
+import { createClient } from "@supabase/supabase-js"
 
-module.exports = async function handler(req, res) {
-
+export default async function handler(req, res) {
+  
   const { user_id, username } = req.query
 
   if (!user_id || !username) {
