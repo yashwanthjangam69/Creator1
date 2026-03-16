@@ -1,8 +1,6 @@
-export const maxDuration = 60
+const { createClient } = require("@supabase/supabase-js")
 
-import { createClient } from "@supabase/supabase-js"
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
 
   const { user_id, username } = req.query
 
@@ -10,9 +8,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "user_id and username are required" })
   }
 
+  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
+
   const supabase = createClient(
     process.env.SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_KEY
+    SUPABASE_SERVICE_KEY
   )
 
   // Check last_scraped_at for 24hr logic
