@@ -1,8 +1,0 @@
-{
-  "outputDirectory": "Creators",
-  "functions": {
-    "Creators/api/scrape.js": {
-      "maxDuration": 60
-    }
-  }
-}
