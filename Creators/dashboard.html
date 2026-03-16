@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
-  
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — Creator Intelligence</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
 
@@ -34,8 +34,7 @@ body{
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
-  padding: 24px 16px 48px;
-  position: relative;
+  padding: 0 0 60px;
 }
 
 body::before{
@@ -50,25 +49,19 @@ body::before{
   z-index:0;
 }
 
-.container{
-  max-width: 480px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-
 /* Nav */
 .nav{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
-  padding-top: 8px;
+  padding: 20px 20px 0;
+  position: relative;
+  z-index: 1;
 }
 
 .nav-brand{
   font-family: 'Playfair Display', serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 600;
   color: var(--text);
 }
@@ -85,7 +78,15 @@ body::before{
 
 .nav-logout:hover{ color: var(--text); }
 
-/* Loading state */
+.container{
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Loading */
 .loading-card{
   background: var(--white);
   border: 1px solid var(--border);
@@ -93,11 +94,12 @@ body::before{
   padding: 48px 28px;
   text-align: center;
   box-shadow: 0 4px 24px rgba(47,107,205,0.08);
+  margin-top: 24px;
 }
 
 .spinner{
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border: 3px solid var(--blue-light);
   border-top-color: var(--blue);
   border-radius: 50%;
@@ -120,186 +122,250 @@ body::before{
   font-weight: 300;
 }
 
-/* Profile card */
-.profile-card{
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 28px;
-  box-shadow: 0 4px 24px rgba(47,107,205,0.08);
-  margin-bottom: 16px;
+/* Hero greeting */
+.hero{
+  padding: 32px 0 8px;
   animation: fadeUp 0.5s ease both;
 }
 
-@keyframes fadeUp{
-  from{ opacity:0; transform:translateY(16px); }
-  to{ opacity:1; transform:translateY(0); }
+.hero-greeting{
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
 }
 
-.profile-header{
-  display: flex;
+.hero-name{
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.1;
+}
+
+.hero-name span{
+  font-style: italic;
+  color: var(--blue);
+}
+
+.hero-sub{
+  font-size: 14px;
+  color: var(--muted);
+  margin-top: 10px;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+/* Profile pill */
+.profile-pill{
+  display: inline-flex;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 10px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 8px 16px 8px 8px;
+  margin-top: 20px;
+  box-shadow: 0 2px 8px rgba(47,107,205,0.06);
+  animation: fadeUp 0.5s 0.1s ease both;
 }
 
-.profile-pic{
-  width: 64px;
-  height: 64px;
+.profile-pill img{
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--blue-mid);
-  flex-shrink: 0;
 }
 
-.profile-pic-placeholder{
-  width: 64px;
-  height: 64px;
+.profile-pill-placeholder{
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--blue-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
-  flex-shrink: 0;
-  border: 2px solid var(--blue-mid);
-}
-
-.profile-info h2{
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-.profile-handle{
-  color: var(--blue);
-  font-size: 13px;
-  margin-top: 3px;
-}
-
-.verified-badge{
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--blue-light);
-  color: var(--blue);
-  font-size: 11px;
-  font-weight: 500;
-  padding: 3px 8px;
-  border-radius: 100px;
-  margin-top: 5px;
-}
-
-.bio{
   font-size: 14px;
-  line-height: 1.6;
-  color: var(--text);
-  margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-  white-space: pre-line;
 }
 
-/* Stats grid */
-.stats{
+.profile-pill-info{
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-pill-handle{
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.profile-pill-followers{
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Stats row */
+.stats-row{
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: 10px;
+  margin-top: 20px;
+  animation: fadeUp 0.5s 0.15s ease both;
 }
 
-.stat{
-  background: var(--bg);
+.stat-box{
+  background: var(--white);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 14px 10px;
   text-align: center;
+  box-shadow: 0 2px 8px rgba(47,107,205,0.05);
 }
 
-.stat-value{
+.stat-box-value{
   font-size: 20px;
   font-weight: 600;
   color: var(--text);
   line-height: 1;
 }
 
-.stat-label{
+.stat-box-label{
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Section title */
+.section-title{
   font-size: 11px;
-  color: var(--muted);
-  margin-top: 5px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Meta card */
-.meta-card{
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 24px 28px;
-  box-shadow: 0 4px 24px rgba(47,107,205,0.08);
-  margin-bottom: 16px;
-  animation: fadeUp 0.5s 0.1s ease both;
-}
-
-.meta-card h3{
-  font-size: 12px;
   font-weight: 500;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 14px;
-}
-
-.meta-row{
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-}
-
-.meta-row:last-child{ border-bottom: none; }
-
-.meta-key{ color: var(--muted); }
-.meta-val{ font-weight: 500; color: var(--text); }
-
-.tag{
-  display: inline-flex;
-  padding: 3px 10px;
-  border-radius: 100px;
-  font-size: 12px;
-  font-weight: 500;
-}
-
-.tag.yes{ background: #f0faf6; color: var(--success); }
-.tag.no{ background: #fef2f2; color: #e05c5c; }
-.tag.blue{ background: var(--blue-light); color: var(--blue); }
-
-/* Scraped at */
-.scraped-at{
-  text-align: center;
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 8px;
+  margin: 28px 0 14px;
   animation: fadeUp 0.5s 0.2s ease both;
 }
 
-/* Error state */
+/* Feature blocks */
+.features{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.feature-card{
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 12px rgba(47,107,205,0.06);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  text-decoration: none;
+  color: inherit;
+}
+
+.feature-card:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(47,107,205,0.12);
+  border-color: var(--blue-mid);
+}
+
+.feature-card:active{
+  transform: translateY(0);
+}
+
+.feature-icon{
+  width: 48px;
+  height: 48px;
+  border-radius: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+.feature-icon.blue{ background: linear-gradient(135deg, #e8f0fc, #d0e3fb); }
+.feature-icon.green{ background: linear-gradient(135deg, #e8f7f0, #c8edd9); }
+.feature-icon.orange{ background: linear-gradient(135deg, #fef3e8, #fde0c0); }
+.feature-icon.pink{ background: linear-gradient(135deg, #fde8f0, #fbc8da); }
+.feature-icon.purple{ background: linear-gradient(135deg, #f0e8fd, #ddc8fb); }
+
+.feature-body{
+  flex: 1;
+  min-width: 0;
+}
+
+.feature-title{
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.feature-desc{
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 300;
+  line-height: 1.4;
+}
+
+.feature-badge{
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
+}
+
+.feature-badge.new{
+  background: linear-gradient(135deg, var(--blue), #5b9cf6);
+  color: white;
+}
+
+.feature-badge.soon{
+  background: #f0f0f0;
+  color: #999;
+}
+
+.feature-arrow{
+  color: var(--blue-mid);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+/* Animations */
+.feature-card:nth-child(1){ animation: fadeUp 0.5s 0.25s ease both; }
+.feature-card:nth-child(2){ animation: fadeUp 0.5s 0.3s ease both; }
+.feature-card:nth-child(3){ animation: fadeUp 0.5s 0.35s ease both; }
+.feature-card:nth-child(4){ animation: fadeUp 0.5s 0.4s ease both; }
+.feature-card:nth-child(5){ animation: fadeUp 0.5s 0.45s ease both; }
+
+@keyframes fadeUp{
+  from{ opacity:0; transform:translateY(16px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+/* Error */
 .error-card{
   background: #fef2f2;
   border: 1px solid #fcd6d6;
   border-radius: 16px;
   padding: 28px;
   text-align: center;
+  margin-top: 24px;
 }
 
-.error-card p{
-  color: #e05c5c;
-  font-size: 14px;
-  margin-bottom: 16px;
-}
+.error-card p{ color: #e05c5c; font-size: 14px; margin-bottom: 16px; }
 
 .btn-retry{
   padding: 10px 24px;
@@ -318,24 +384,19 @@ body::before{
 
 <body>
 
+<div class="nav">
+  <div class="nav-brand">Creator Intelligence</div>
+  <button class="nav-logout" onclick="logout()">Log out</button>
+</div>
+
 <div class="container">
-
-  <div class="nav">
-    <div class="nav-brand">Creator Intelligence</div>
-    <button class="nav-logout" onclick="logout()">Log out</button>
-  </div>
-
-  <div id="content">
-    <!-- Filled by JS -->
-  </div>
-
+  <div id="content"></div>
 </div>
 
 <script>
 
 async function init(){
 
-  // Check session
   const { data: sessionData } = await client.auth.getSession()
   if(!sessionData.session){
     window.location = 'index.html'
@@ -344,10 +405,9 @@ async function init(){
 
   const user = sessionData.session.user
 
-  // Get instagram username from profiles
   const { data: profile } = await client
     .from('profiles')
-    .select('instagram, last_scraped_at')
+    .select('name, instagram, last_scraped_at')
     .eq('id', user.id)
     .single()
 
@@ -363,16 +423,14 @@ async function init(){
 
   if(needsScrape){
     showLoading()
- const res = await fetch(`/api/scrape?user_id=${user.id}&username=${profile.instagram}`)
- const resData = await res.json()
- console.log('Scrape response:', resData)
- if(!res.ok){
-   showError(`Scrape failed: ${resData.error || 'Unknown error'}`)
-   return
- }
+    const res = await fetch(`/api/scrape?user_id=${user.id}&username=${profile.instagram}`)
+    if(!res.ok){
+      const err = await res.json()
+      showError(err.error || 'Scrape failed. Please try again.')
+      return
+    }
   }
 
-  // Load latest snapshot
   const { data: snapshot } = await client
     .from('profile_snapshots')
     .select('*')
@@ -386,7 +444,7 @@ async function init(){
     return
   }
 
-  showProfile(snapshot)
+  showDashboard(profile, snapshot)
 }
 
 function showLoading(){
@@ -415,75 +473,96 @@ function formatCount(n){
   return n.toLocaleString()
 }
 
-function showProfile(s){
-  const picHtml = s.profile_pic_url
-    ? `<img class="profile-pic" src="${s.profile_pic_url}" alt="Profile">`
-    : `<div class="profile-pic-placeholder">👤</div>`
+function showDashboard(profile, snapshot){
 
-  const verifiedHtml = s.is_verified
-    ? `<div class="verified-badge">✓ Verified</div>`
-    : ''
+  const firstName = profile.name ? profile.name.split(' ')[0] : 'there'
 
-  const scrapedDate = s.scraped_at
-    ? new Date(s.scraped_at).toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' })
-    : ''
+  const picHtml = snapshot.profile_pic_url
+    ? `<img src="${snapshot.profile_pic_url}" alt="pic">`
+    : `<div class="profile-pill-placeholder">👤</div>`
 
   document.getElementById('content').innerHTML = `
 
-    <div class="profile-card">
-      <div class="profile-header">
-        ${picHtml}
-        <div class="profile-info">
-          <h2>${s.full_name || s.instagram_username}</h2>
-          <div class="profile-handle">@${s.instagram_username}</div>
-          ${verifiedHtml}
-        </div>
-      </div>
+    <div class="hero">
+      <div class="hero-greeting">Welcome back</div>
+      <div class="hero-name">Hi, <span>${firstName}</span> 👋</div>
+      <div class="hero-sub">Here's what you can do with your Creator Intelligence today.</div>
+    </div>
 
-      ${s.biography ? `<div class="bio">${s.biography}</div>` : ''}
-
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-value">${formatCount(s.followers_count)}</div>
-          <div class="stat-label">Followers</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">${formatCount(s.following_count)}</div>
-          <div class="stat-label">Following</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value">${formatCount(s.posts_count)}</div>
-          <div class="stat-label">Posts</div>
-        </div>
+    <div class="profile-pill">
+      ${picHtml}
+      <div class="profile-pill-info">
+        <div class="profile-pill-handle">@${snapshot.instagram_username}</div>
+        <div class="profile-pill-followers">${formatCount(snapshot.followers_count)} followers</div>
       </div>
     </div>
 
-    <div class="meta-card">
-      <h3>Account Details</h3>
-      <div class="meta-row">
-        <span class="meta-key">Account Type</span>
-        <span class="meta-val">
-          ${s.is_business_account
-            ? `<span class="tag blue">${s.business_category_name || 'Business'}</span>`
-            : `<span class="tag blue">Personal</span>`}
-        </span>
+    <div class="stats-row">
+      <div class="stat-box">
+        <div class="stat-box-value">${formatCount(snapshot.followers_count)}</div>
+        <div class="stat-box-label">Followers</div>
       </div>
-      <div class="meta-row">
-        <span class="meta-key">Private</span>
-        <span class="tag ${s.is_private ? 'no' : 'yes'}">${s.is_private ? 'Yes' : 'No'}</span>
+      <div class="stat-box">
+        <div class="stat-box-value">${formatCount(snapshot.following_count)}</div>
+        <div class="stat-box-label">Following</div>
       </div>
-      <div class="meta-row">
-        <span class="meta-key">Highlights</span>
-        <span class="meta-val">${s.highlight_reel_count || 0}</span>
+      <div class="stat-box">
+        <div class="stat-box-value">${formatCount(snapshot.posts_count)}</div>
+        <div class="stat-box-label">Posts</div>
       </div>
-      ${s.external_url ? `
-      <div class="meta-row">
-        <span class="meta-key">Link</span>
-        <a href="${s.external_url}" target="_blank" style="color:var(--blue);font-size:13px;word-break:break-all;">${s.external_url}</a>
-      </div>` : ''}
     </div>
 
-    <div class="scraped-at">Last updated: ${scrapedDate}</div>
+    <div class="section-title">Your tools</div>
+
+    <div class="features">
+
+      <div class="feature-card" onclick="alert('Coming soon!')">
+        <div class="feature-icon blue">🤖</div>
+        <div class="feature-body">
+          <div class="feature-title">Talk to Vikram</div>
+          <div class="feature-desc">Your AI brand manager. Vikram already knows your profile and is ready to help you grow.</div>
+        </div>
+        <span class="feature-badge new">NEW</span>
+      </div>
+
+      <div class="feature-card" onclick="alert('Coming soon!')">
+        <div class="feature-icon green">📊</div>
+        <div class="feature-body">
+          <div class="feature-title">Profile Audit</div>
+          <div class="feature-desc">Get a full breakdown of what's working and what's holding your profile back.</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+
+      <div class="feature-card" onclick="alert('Coming soon!')">
+        <div class="feature-icon orange">🎬</div>
+        <div class="feature-body">
+          <div class="feature-title">Reel Validator</div>
+          <div class="feature-desc">Upload a reel before posting. AI checks your hook, caption, and hashtags.</div>
+        </div>
+        <span class="feature-arrow">›</span>
+      </div>
+
+      <div class="feature-card" onclick="alert('Coming soon!')">
+        <div class="feature-icon pink">🔥</div>
+        <div class="feature-body">
+          <div class="feature-title">Viral Finder</div>
+          <div class="feature-desc">Discover trending reels, hashtags and captions in your niche right now.</div>
+        </div>
+        <span class="feature-badge soon">SOON</span>
+      </div>
+
+      <div class="feature-card" onclick="alert('Coming soon!')">
+        <div class="feature-icon purple">🔍</div>
+        <div class="feature-body">
+          <div class="feature-title">Competitor Analysis</div>
+          <div class="feature-desc">Compare your performance metrics with any other creator, one at a time.</div>
+        </div>
+        <span class="feature-badge soon">SOON</span>
+      </div>
+
+    </div>
+
   `
 }
 
