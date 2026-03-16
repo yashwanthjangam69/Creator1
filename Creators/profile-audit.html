@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Audit — Creator Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="metrics.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+:root{
+  --bg: #f0f5fb;
+  --white: #ffffff;
+  --blue: #2f6bcd;
+  --blue-deep: #0b487f;
+  --blue-light: #e8f0fc;
+  --blue-mid: #b8cef5;
+  --text: #1a2540;
+  --muted: #0b487f;
+  --border: #dce8f8;
+  --green: #2e9e6b;
+  --green-bg: #f0faf6;
+  --green-border: #b6e8d2;
+  --orange: #e07a2f;
+  --orange-bg: #fef6ee;
+  --orange-border: #fad9b8;
+  --red: #e05c5c;
+  --red-bg: #fef2f2;
+  --red-border: #fcd6d6;
+}
+
+body{
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding-bottom: 80px;
+}
+
+/* Animated background */
+.bg-orb{
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  filter: blur(60px);
+}
+
+.bg-orb-1{
+  width: 400px;
+  height: 400px;
+  background: rgba(47,107,205,0.07);
+  top: -100px;
+  right: -100px;
+  animation: float1 8s ease-in-out infinite;
+}
+
+.bg-orb-2{
+  width: 300px;
+  height: 300px;
+  background: rgba(11,72,127,0.05);
+  bottom: 100px;
+  left: -80px;
+  animation: float2 10s ease-in-out infinite;
+}
+
+@keyframes float1{
+  0%,100%{ transform: translate(0,0); }
+  50%{ transform: translate(-20px, 20px); }
+}
+
+@keyframes float2{
+  0%,100%{ transform: translate(0,0); }
+  50%{ transform: translate(20px, -20px); }
+}
+
+/* Nav */
+.nav{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 0;
+  position: relative;
+  z-index: 10;
+}
+
+.nav-back{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--muted);
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  transition: color 0.2s;
+}
+
+.nav-back:hover{ color: var(--text); }
+
+.nav-title{
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.container{
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 0 16px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Loading */
+.loading-wrap{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 20px;
+}
+
+.loading-spinner{
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--blue-light);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+.loading-text{
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--text);
+}
+
+.loading-sub{ font-size: 13px; color: var(--muted); }
+
+/* Hero */
+.audit-hero{
+  padding: 32px 0 24px;
+  animation: fadeUp 0.6s ease both;
+}
+
+.audit-eyebrow{
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.audit-title{
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.audit-title em{
+  font-style: italic;
+  color: var(--blue);
+}
+
+.audit-based{
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+/* Score card */
+.score-card{
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue));
+  border-radius: 24px;
+  padding: 28px;
+  margin: 4px 0 24px;
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp 0.6s 0.1s ease both;
+}
+
+.score-card::before{
+  content:'';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 180px;
+  height: 180px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+}
+
+.score-card::after{
+  content:'';
+  position: absolute;
+  bottom: -60px;
+  left: -30px;
+  width: 220px;
+  height: 220px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 50%;
+}
+
+.score-label{
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.score-main{
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+
+.score-number{
+  font-family: 'Playfair Display', serif;
+  font-size: 64px;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.score-suffix{
+  font-size: 20px;
+  color: rgba(255,255,255,0.5);
+  padding-bottom: 10px;
+}
+
+.score-grade{
+  margin-left: auto;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+}
+
+.score-desc{
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  margin-top: 14px;
+  line-height: 1.5;
+  position: relative;
+  z-index: 1;
+}
+
+/* Bar */
+.score-bar-wrap{
+  margin-top: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.score-bar-track{
+  height: 6px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.score-bar-fill{
+  height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0.5), white);
+  border-radius: 100px;
+  transition: width 1.5s cubic-bezier(0.22,1,0.36,1);
+  width: 0%;
+}
+
+/* Section */
+.section{
+  margin-bottom: 28px;
+}
+
+.section-head{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.section-icon{
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--blue-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.section-title{
+  font-family: 'Playfair Display', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Metric grid */
+.metric-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.metric-card{
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 16px;
+  box-shadow: 0 2px 12px rgba(47,107,205,0.05);
+  transition: transform 0.2s;
+}
+
+.metric-card:hover{ transform: translateY(-2px); }
+
+.metric-card.full{ grid-column: span 2; }
+
+.metric-value{
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.metric-value.blue{ color: var(--blue); }
+.metric-value.green{ color: var(--green); }
+.metric-value.orange{ color: var(--orange); }
+
+.metric-label{
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.metric-context{
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 8px;
+  line-height: 1.4;
+  font-weight: 300;
+}
+
+/* Engagement rate pill */
+.er-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.er-pill.good{ background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+.er-pill.ok{ background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+.er-pill.low{ background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+
+/* Type bars */
+.type-bar-list{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.type-bar-item{
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(47,107,205,0.04);
+}
+
+.type-bar-top{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.type-bar-name{
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.type-bar-emoji{ font-size: 16px; }
+
+.type-bar-avg{
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+.type-bar-track{
+  height: 5px;
+  background: var(--blue-light);
+  border-radius: 100px;
+  overflow: hidden;
+}
+
+.type-bar-fill{
+  height: 100%;
+  border-radius: 100px;
+  transition: width 1.2s cubic-bezier(0.22,1,0.36,1);
+  width: 0%;
+}
+
+.type-bar-fill.video{ background: linear-gradient(90deg, #f093fb, #f5576c); }
+.type-bar-fill.image{ background: linear-gradient(90deg, #4facfe, #00f2fe); }
+.type-bar-fill.sidecar{ background: linear-gradient(90deg, #43e97b, #38f9d7); }
+.type-bar-fill.default{ background: linear-gradient(90deg, var(--blue), #5b9cf6); }
+
+.type-bar-meta{
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.type-bar-stat{
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.type-bar-stat span{ font-weight: 500; color: var(--text); }
+
+/* Hashtags */
+.hashtag-cloud{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.hashtag-pill{
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--blue-deep);
+  font-weight: 400;
+  transition: all 0.2s;
+}
+
+.hashtag-pill:hover{
+  background: var(--blue-light);
+  border-color: var(--blue-mid);
+}
+
+.hashtag-pill .count{
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+/* Best/worst posts */
+.post-card{
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  box-shadow: 0 2px 8px rgba(47,107,205,0.04);
+  margin-bottom: 10px;
+}
+
+.post-thumb{
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--blue-light);
+}
+
+.post-thumb-placeholder{
+  width: 64px;
+  height: 64px;
+  border-radius: 10px;
+  background: var(--blue-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.post-info{ flex: 1; min-width: 0; }
+
+.post-type-badge{
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 100px;
+  margin-bottom: 6px;
+}
+
+.post-type-badge.video{ background: #fde8f4; color: #c0396e; }
+.post-type-badge.image{ background: var(--blue-light); color: var(--blue); }
+.post-type-badge.sidecar{ background: #e8fdf0; color: #2a8a55; }
+
+.post-caption{
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.post-stats{
+  display: flex;
+  gap: 12px;
+}
+
+.post-stat{
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.post-stat span{ font-weight: 500; color: var(--text); }
+
+/* Insight cards */
+.insight-list{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.insight-card{
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  box-shadow: 0 2px 8px rgba(47,107,205,0.04);
+}
+
+.insight-dot{
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 5px;
+  flex-shrink: 0;
+}
+
+.insight-dot.green{ background: var(--green); }
+.insight-dot.orange{ background: var(--orange); }
+.insight-dot.blue{ background: var(--blue); }
+
+.insight-text{
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+}
+
+.insight-text strong{ font-weight: 600; }
+
+/* Animations */
+@keyframes fadeUp{
+  from{ opacity:0; transform:translateY(20px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.section:nth-child(1){ animation: fadeUp 0.5s 0.1s ease both; }
+.section:nth-child(2){ animation: fadeUp 0.5s 0.15s ease both; }
+.section:nth-child(3){ animation: fadeUp 0.5s 0.2s ease both; }
+.section:nth-child(4){ animation: fadeUp 0.5s 0.25s ease both; }
+.section:nth-child(5){ animation: fadeUp 0.5s 0.3s ease both; }
+.section:nth-child(6){ animation: fadeUp 0.5s 0.35s ease both; }
+
+</style>
+</head>
+
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<div class="nav">
+  <button class="nav-back" onclick="window.location='dashboard.html'">← Back</button>
+  <div class="nav-title">Profile Audit</div>
+  <div style="width:60px"></div>
+</div>
+
+<div class="container">
+  <div id="content">
+    <div class="loading-wrap">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">Analysing your profile</div>
+      <div class="loading-sub">Crunching your last 10 posts...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+async function init(){
+
+  const { data: sessionData } = await client.auth.getSession()
+  if(!sessionData.session){ window.location = 'index.html'; return }
+
+  const user = sessionData.session.user
+
+  const { data: profile } = await client
+    .from('profiles')
+    .select('name, instagram')
+    .eq('id', user.id)
+    .single()
+
+  if(!profile){ window.location = 'dashboard.html'; return }
+
+  const metrics = await getMetrics(user.id)
+
+  if(!metrics){
+    document.getElementById('content').innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--muted)">No post data found. Please go back and refresh your data.</div>`
+    return
+  }
+
+  renderAudit(profile, metrics)
+}
+
+function formatNum(n){
+  if(!n) return '0'
+  if(n >= 1000000) return (n/1000000).toFixed(1)+'M'
+  if(n >= 1000) return (n/1000).toFixed(1)+'K'
+  return n.toLocaleString()
+}
+
+function getEngagementLabel(er){
+  if(er >= 3) return { label: 'Excellent', cls: 'good', icon: '🔥' }
+  if(er >= 1) return { label: 'Good', cls: 'good', icon: '✓' }
+  if(er >= 0.5) return { label: 'Average', cls: 'ok', icon: '~' }
+  return { label: 'Needs Work', cls: 'low', icon: '↓' }
+}
+
+function getScore(metrics){
+  let score = 0
+  // Engagement rate (max 40pts)
+  if(metrics.engagementRate >= 5) score += 40
+  else if(metrics.engagementRate >= 3) score += 32
+  else if(metrics.engagementRate >= 1) score += 22
+  else if(metrics.engagementRate >= 0.5) score += 12
+  else score += 4
+  // Posting frequency (max 20pts)
+  if(metrics.postsPerWeek >= 5) score += 20
+  else if(metrics.postsPerWeek >= 3) score += 16
+  else if(metrics.postsPerWeek >= 1) score += 10
+  else score += 4
+  // Avg likes relative to followers (max 20pts)
+  const likeRatio = metrics.followersCount > 0 ? metrics.avgLikes / metrics.followersCount * 100 : 0
+  if(likeRatio >= 5) score += 20
+  else if(likeRatio >= 2) score += 14
+  else if(likeRatio >= 1) score += 8
+  else score += 2
+  // Hashtag usage (max 10pts)
+  if(metrics.topHashtags.length >= 5) score += 10
+  else if(metrics.topHashtags.length >= 2) score += 6
+  else score += 2
+  // Content variety (max 10pts)
+  if(metrics.typePerformance.length >= 3) score += 10
+  else if(metrics.typePerformance.length >= 2) score += 6
+  else score += 3
+
+  return Math.min(score, 100)
+}
+
+function getGrade(score){
+  if(score >= 85) return 'A'
+  if(score >= 70) return 'B'
+  if(score >= 55) return 'C'
+  if(score >= 40) return 'D'
+  return 'F'
+}
+
+function getTypeEmoji(type){
+  if(type === 'Video') return '🎬'
+  if(type === 'Image') return '📸'
+  if(type === 'Sidecar') return '🖼️'
+  return '📄'
+}
+
+function getTypeFillClass(type){
+  if(type === 'Video') return 'video'
+  if(type === 'Image') return 'image'
+  if(type === 'Sidecar') return 'sidecar'
+  return 'default'
+}
+
+function generateInsights(metrics){
+  const insights = []
+  const er = metrics.engagementRate
+
+  if(er >= 3){
+    insights.push({ dot: 'green', text: `Your engagement rate of <strong>${er}%</strong> is excellent. Your audience is highly active.` })
+  } else if(er < 1){
+    insights.push({ dot: 'orange', text: `Your engagement rate of <strong>${er}%</strong> is below average. Try posting more interactive content like questions or polls.` })
+  }
+
+  if(metrics.postsPerWeek < 2){
+    insights.push({ dot: 'orange', text: `You're posting <strong>${metrics.postsPerWeek}x per week</strong>. Posting at least 3–4 times per week can significantly boost reach.` })
+  } else if(metrics.postsPerWeek >= 5){
+    insights.push({ dot: 'green', text: `Great posting frequency — <strong>${metrics.postsPerWeek}x per week</strong> keeps your audience engaged consistently.` })
+  }
+
+  if(metrics.bestPostType){
+    insights.push({ dot: 'blue', text: `Your <strong>${metrics.bestPostType}</strong> posts get the most engagement. Consider doubling down on this format.` })
+  }
+
+  if(metrics.bestDay && metrics.bestDay !== 'Unknown'){
+    insights.push({ dot: 'blue', text: `<strong>${metrics.bestDay}</strong> is your best day to post. Schedule your most important content for this day.` })
+  }
+
+  if(metrics.topHashtags.length === 0){
+    insights.push({ dot: 'orange', text: `You're not using hashtags consistently. Adding 5–10 relevant hashtags per post can increase discoverability.` })
+  }
+
+  return insights
+}
+
+function renderAudit(profile, metrics){
+
+  const firstName = profile.name ? profile.name.split(' ')[0] : 'Creator'
+  const score = getScore(metrics)
+  const grade = getGrade(score)
+  const erInfo = getEngagementLabel(metrics.engagementRate)
+  const insights = generateInsights(metrics)
+  const maxTypeEngagement = Math.max(...metrics.typePerformance.map(t => t.avgEngagement), 1)
+
+  document.getElementById('content').innerHTML = `
+
+    <div class="audit-hero">
+      <div class="audit-eyebrow">Profile Audit</div>
+      <div class="audit-title">Here's how <em>${firstName}</em><br>is performing.</div>
+      <div class="audit-based">Based on your last ${metrics.totalPostsAnalyzed} posts</div>
+    </div>
+
+    <!-- Score Card -->
+    <div class="score-card" id="scoreCard">
+      <div class="score-label">Overall Score</div>
+      <div class="score-main">
+        <div class="score-number" id="scoreNumber">0</div>
+        <div class="score-suffix">/100</div>
+        <div class="score-grade">${grade}</div>
+      </div>
+      <div class="score-desc">${getScoreDesc(score, firstName)}</div>
+      <div class="score-bar-wrap">
+        <div class="score-bar-track">
+          <div class="score-bar-fill" id="scoreBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Engagement -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">💬</div>
+        <div class="section-title">Engagement</div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value blue">${metrics.engagementRate}%</div>
+          <div class="metric-label">Engagement Rate</div>
+          <div class="er-pill ${erInfo.cls}">${erInfo.icon} ${erInfo.label}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">${formatNum(metrics.avgLikes)}</div>
+          <div class="metric-label">Avg Likes</div>
+          <div class="metric-context">per post</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">${formatNum(metrics.avgComments)}</div>
+          <div class="metric-label">Avg Comments</div>
+          <div class="metric-context">per post</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value green">${metrics.postsPerWeek}x</div>
+          <div class="metric-label">Posts / Week</div>
+          <div class="metric-context">posting frequency</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Performance -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">📈</div>
+        <div class="section-title">Content Performance</div>
+      </div>
+      <div class="type-bar-list" id="typeBars">
+        ${metrics.typePerformance.map(t => `
+          <div class="type-bar-item">
+            <div class="type-bar-top">
+              <div class="type-bar-name">
+                <span class="type-bar-emoji">${getTypeEmoji(t.type)}</span>
+                ${t.type}
+              </div>
+              <div class="type-bar-avg">${formatNum(t.avgEngagement)} avg</div>
+            </div>
+            <div class="type-bar-track">
+              <div class="type-bar-fill ${getTypeFillClass(t.type)}" data-width="${Math.round(t.avgEngagement / maxTypeEngagement * 100)}"></div>
+            </div>
+            <div class="type-bar-meta">
+              <div class="type-bar-stat">❤️ <span>${formatNum(t.avgLikes)}</span> likes</div>
+              <div class="type-bar-stat">💬 <span>${formatNum(t.avgComments)}</span> comments</div>
+              <div class="type-bar-stat">📊 <span>${t.count}</span> posts</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- Timing -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">📅</div>
+        <div class="section-title">Timing</div>
+      </div>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-value blue">${metrics.bestDay}</div>
+          <div class="metric-label">Best Day to Post</div>
+          <div class="metric-context">highest avg engagement</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-value">${metrics.postsPerWeek}x</div>
+          <div class="metric-label">Weekly Frequency</div>
+          <div class="metric-context">posts per week</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Hashtags -->
+    ${metrics.topHashtags.length > 0 ? `
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">#️⃣</div>
+        <div class="section-title">Your Top Hashtags</div>
+      </div>
+      <div class="hashtag-cloud">
+        ${metrics.topHashtags.map(h => `
+          <div class="hashtag-pill">#${h.tag}<span class="count">×${h.count}</span></div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <!-- Best Post -->
+    ${metrics.bestPost ? `
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">🏆</div>
+        <div class="section-title">Your Best Post</div>
+      </div>
+      <div class="post-card">
+        ${metrics.bestPost.display_url
+          ? `<img class="post-thumb" src="${metrics.bestPost.display_url}" alt="post">`
+          : `<div class="post-thumb-placeholder">📸</div>`}
+        <div class="post-info">
+          <div class="post-type-badge ${(metrics.bestPost.type||'').toLowerCase()}">${getTypeEmoji(metrics.bestPost.type)} ${metrics.bestPost.type || 'Post'}</div>
+          <div class="post-caption">${metrics.bestPost.caption || 'No caption'}</div>
+          <div class="post-stats">
+            <div class="post-stat">❤️ <span>${formatNum(metrics.bestPost.likes_count)}</span></div>
+            <div class="post-stat">💬 <span>${formatNum(metrics.bestPost.comments_count)}</span></div>
+            ${metrics.bestPost.video_view_count ? `<div class="post-stat">👁 <span>${formatNum(metrics.bestPost.video_view_count)}</span></div>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>` : ''}
+
+    <!-- Insights -->
+    ${insights.length > 0 ? `
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">💡</div>
+        <div class="section-title">Key Insights</div>
+      </div>
+      <div class="insight-list">
+        ${insights.map(i => `
+          <div class="insight-card">
+            <div class="insight-dot ${i.dot}"></div>
+            <div class="insight-text">${i.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+  `
+
+  // Animate score counter
+  animateScore(score)
+
+  // Animate bars
+  setTimeout(() => {
+    document.getElementById('scoreBar').style.width = score + '%'
+    document.querySelectorAll('.type-bar-fill').forEach(el => {
+      el.style.width = el.dataset.width + '%'
+    })
+  }, 100)
+}
+
+function getScoreDesc(score, name){
+  if(score >= 85) return `${name}, your profile is performing exceptionally well. Keep doing what you're doing!`
+  if(score >= 70) return `${name}, your profile is in good shape. A few tweaks could push you to the next level.`
+  if(score >= 55) return `${name}, you're on the right track. Focus on consistency and engagement to improve.`
+  if(score >= 40) return `${name}, there's room to grow. Let's work on your posting habits and content strategy.`
+  return `${name}, your profile needs attention. Don't worry — small changes can make a big difference.`
+}
+
+function animateScore(target){
+  const el = document.getElementById('scoreNumber')
+  if(!el) return
+  let current = 0
+  const step = target / 60
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target)
+    el.textContent = Math.round(current)
+    if(current >= target) clearInterval(timer)
+  }, 16)
+}
+
+init()
+
+</script>
+
+</body>
+</html>
