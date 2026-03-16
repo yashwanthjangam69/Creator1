@@ -55,31 +55,73 @@ async function getMetrics(userId) {
     .single()
 
   const followersCount = snapshot?.followers_count || 0
-
-  // --- Calculate Metrics ---
-
   const totalPosts = postsToAnalyze.length
 
-  // Average likes
+  // --- Core counts ---
   const totalLikes = postsToAnalyze.reduce((sum, p) => sum + (p.likes_count || 0), 0)
-  const avgLikes = Math.round(totalLikes / totalPosts)
-
-  // Average comments
   const totalComments = postsToAnalyze.reduce((sum, p) => sum + (p.comments_count || 0), 0)
+  const totalViews = postsToAnalyze.reduce((sum, p) => sum + (p.video_view_count || 0), 0)
+
+  const avgLikes = Math.round(totalLikes / totalPosts)
   const avgComments = Math.round(totalComments / totalPosts)
 
-  // Engagement rate (likes + comments) / followers * 100
-  const engagementRate = followersCount > 0
-    ? (((totalLikes + totalComments) / totalPosts) / followersCount * 100).toFixed(2)
+  // --- Engagement Rate ---
+  // Video/Reel: (likes + comments) / video_views × 100 per post
+  // Image/Sidecar: (likes + comments) / followers × 100 per post
+  // Then average across all posts
+
+  let totalER = 0
+  let erCount = 0
+
+  for (const post of postsToAnalyze) {
+    const engagement = (post.likes_count || 0) + (post.comments_count || 0)
+
+    if (post.type === 'Video' && post.video_view_count > 0) {
+      totalER += (engagement / post.video_view_count * 100)
+      erCount++
+    } else if (followersCount > 0) {
+      totalER += (engagement / followersCount * 100)
+      erCount++
+    }
+  }
+
+  const engagementRate = erCount > 0
+    ? parseFloat((totalER / erCount).toFixed(2))
     : 0
 
-  // Best performing post type
+  // --- Like-to-View ratio (videos only) ---
+  // High views low likes = hook worked but content didn't deliver
+  const videoPosts = postsToAnalyze.filter(p => p.type === 'Video' && p.video_view_count > 0)
+  const totalVideoLikes = videoPosts.reduce((sum, p) => sum + (p.likes_count || 0), 0)
+  const totalVideoViews = videoPosts.reduce((sum, p) => sum + (p.video_view_count || 0), 0)
+  const totalVideoComments = videoPosts.reduce((sum, p) => sum + (p.comments_count || 0), 0)
+
+  const likeToViewRatio = totalVideoViews > 0
+    ? parseFloat((totalVideoLikes / totalVideoViews * 100).toFixed(2))
+    : null
+
+  const commentToViewRatio = totalVideoViews > 0
+    ? parseFloat((totalVideoComments / totalVideoViews * 100).toFixed(2))
+    : null
+
+  // Hook score interpretation
+  // If like-to-view is low (<2%) = hook worked but content failed to convert
+  // If like-to-view is high (>5%) = strong content quality
+  let hookSignal = null
+  if (likeToViewRatio !== null) {
+    if (likeToViewRatio >= 5) hookSignal = 'strong'
+    else if (likeToViewRatio >= 2) hookSignal = 'average'
+    else hookSignal = 'weak'
+  }
+
+  // --- Best performing post type ---
   const typeGroups = {}
   for (const post of postsToAnalyze) {
     const type = post.type || 'Unknown'
-    if (!typeGroups[type]) typeGroups[type] = { likes: 0, comments: 0, count: 0 }
+    if (!typeGroups[type]) typeGroups[type] = { likes: 0, comments: 0, views: 0, count: 0 }
     typeGroups[type].likes += post.likes_count || 0
     typeGroups[type].comments += post.comments_count || 0
+    typeGroups[type].views += post.video_view_count || 0
     typeGroups[type].count++
   }
 
@@ -88,12 +130,13 @@ async function getMetrics(userId) {
     count: data.count,
     avgLikes: Math.round(data.likes / data.count),
     avgComments: Math.round(data.comments / data.count),
+    avgViews: data.views > 0 ? Math.round(data.views / data.count) : 0,
     avgEngagement: Math.round((data.likes + data.comments) / data.count)
   })).sort((a, b) => b.avgEngagement - a.avgEngagement)
 
   const bestPostType = typePerformance[0]?.type || 'Unknown'
 
-  // Top hashtags
+  // --- Top hashtags ---
   const hashtagCount = {}
   for (const post of postsToAnalyze) {
     const tags = post.hashtags || []
@@ -107,12 +150,12 @@ async function getMetrics(userId) {
     .slice(0, 10)
     .map(([tag, count]) => ({ tag, count }))
 
-  // Posting frequency (posts per week)
+  // --- Posting frequency ---
   const daysDiff = (newestDate - oldestDate) / (1000 * 60 * 60 * 24)
   const weeksDiff = daysDiff / 7 || 1
-  const postsPerWeek = (totalPosts / weeksDiff).toFixed(1)
+  const postsPerWeek = parseFloat((totalPosts / weeksDiff).toFixed(1))
 
-  // Best day to post (by avg engagement)
+  // --- Best day to post ---
   const dayGroups = {}
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
@@ -128,24 +171,7 @@ async function getMetrics(userId) {
     .map(([day, data]) => ({ day, avgEngagement: Math.round(data.engagement / data.count) }))
     .sort((a, b) => b.avgEngagement - a.avgEngagement)[0]?.day || 'Unknown'
 
-  // Video vs photo performance
-  const videos = postsToAnalyze.filter(p => p.type === 'Video')
-  const images = postsToAnalyze.filter(p => p.type === 'Image')
-  const sidecars = postsToAnalyze.filter(p => p.type === 'Sidecar')
-
-  const avgVideoViews = videos.length > 0
-    ? Math.round(videos.reduce((sum, p) => sum + (p.video_view_count || 0), 0) / videos.length)
-    : 0
-
-  const avgImageLikes = images.length > 0
-    ? Math.round(images.reduce((sum, p) => sum + (p.likes_count || 0), 0) / images.length)
-    : 0
-
-  const avgSidecarLikes = sidecars.length > 0
-    ? Math.round(sidecars.reduce((sum, p) => sum + (p.likes_count || 0), 0) / sidecars.length)
-    : 0
-
-  // Best and worst post
+  // --- Best and worst post ---
   const sortedByEngagement = [...postsToAnalyze].sort((a, b) => {
     const engA = (a.likes_count || 0) + (a.comments_count || 0)
     const engB = (b.likes_count || 0) + (b.comments_count || 0)
@@ -155,6 +181,22 @@ async function getMetrics(userId) {
   const bestPost = sortedByEngagement[0] || null
   const worstPost = sortedByEngagement[sortedByEngagement.length - 1] || null
 
+  // --- Avg video views ---
+  const avgVideoViews = videoPosts.length > 0
+    ? Math.round(totalVideoViews / videoPosts.length)
+    : 0
+
+  const imagePosts = postsToAnalyze.filter(p => p.type === 'Image')
+  const sidecarPosts = postsToAnalyze.filter(p => p.type === 'Sidecar')
+
+  const avgImageLikes = imagePosts.length > 0
+    ? Math.round(imagePosts.reduce((sum, p) => sum + (p.likes_count || 0), 0) / imagePosts.length)
+    : 0
+
+  const avgSidecarLikes = sidecarPosts.length > 0
+    ? Math.round(sidecarPosts.reduce((sum, p) => sum + (p.likes_count || 0), 0) / sidecarPosts.length)
+    : 0
+
   return {
     // Core
     totalPostsAnalyzed: totalPosts,
@@ -163,17 +205,22 @@ async function getMetrics(userId) {
     // Engagement
     avgLikes,
     avgComments,
-    engagementRate: parseFloat(engagementRate),
+    engagementRate,
+
+    // Video signals
+    avgVideoViews,
+    likeToViewRatio,
+    commentToViewRatio,
+    hookSignal,
 
     // Content type
     bestPostType,
     typePerformance,
-    avgVideoViews,
     avgImageLikes,
     avgSidecarLikes,
 
     // Timing
-    postsPerWeek: parseFloat(postsPerWeek),
+    postsPerWeek,
     bestDay,
 
     // Hashtags
@@ -183,7 +230,7 @@ async function getMetrics(userId) {
     bestPost,
     worstPost,
 
-    // Raw posts used (for Vikram context)
+    // Raw posts (for Vikram context)
     posts: postsToAnalyze
   }
 }
