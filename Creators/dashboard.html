@@ -484,7 +484,7 @@ function showDashboard(profile, snapshot){
   document.getElementById('content').innerHTML = `
 
     <div class="hero">
-      <div class="hero-greeting">Welcome back</div>
+      <div class="hero-greeting">Welcome</div>
       <div class="hero-name">Hi, <span>${firstName}</span> 👋</div>
       <div class="hero-sub">Here's what you can do with your Creator Intelligence today.</div>
     </div>
@@ -503,7 +503,7 @@ function showDashboard(profile, snapshot){
         <span class="feature-badge new">NEW</span>
       </div>
 
-      <div class="feature-card" onclick="alert('Coming soon!')">
+      <div class="feature-card" onclick="window.location='profile-audit.html'">
         <div class="feature-icon green">📊</div>
         <div class="feature-body">
           <div class="feature-title">Profile Audit</div>
