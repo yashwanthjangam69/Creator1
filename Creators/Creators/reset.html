@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Reset Password</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+
+<style>
+
+body{
+font-family:Arial, sans-serif;
+background:#f4f4f4;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.container{
+width:90%;
+max-width:420px;
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 0 15px rgba(0,0,0,0.08);
+text-align:center;
+}
+
+input{
+width:100%;
+padding:12px;
+margin-top:10px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+button{
+width:100%;
+padding:12px;
+margin-top:15px;
+background:black;
+color:white;
+border:none;
+border-radius:6px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Reset Password</h2>
+
+<input id="password" type="password" placeholder="New Password">
+
+<input id="confirmPassword" type="password" placeholder="Confirm Password">
+
+<button onclick="updatePassword()">Update Password</button>
+
+</div>
+
+<script>
+
+async function updatePassword(){
+
+const password=document.getElementById("password").value
+const confirm=document.getElementById("confirmPassword").value
+
+if(password!==confirm){
+alert("Passwords do not match")
+return
+}
+
+const { error } = await client.auth.updateUser({
+password:password
+})
+
+if(error){
+alert(error.message)
+}else{
+alert("Password updated successfully")
+window.location="index.html"
+}
+
+}
+
+</script>
+
+</body>
+</html>
