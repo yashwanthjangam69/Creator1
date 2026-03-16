@@ -1,7 +1,7 @@
 {
   "outputDirectory": "Creators",
   "functions": {
-    "Creators/api/scrape.js": {
+    "Creators/api/*.js": {
       "maxDuration": 60
     }
   }
