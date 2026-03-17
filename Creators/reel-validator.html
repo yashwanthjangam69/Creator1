@@ -1,1 +1,646 @@
 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reel Validator — Creator Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+:root{
+  --bg:#f0f5fb;
+  --white:#ffffff;
+  --blue:#2f6bcd;
+  --blue-deep:#0b487f;
+  --blue-light:#e8f0fc;
+  --blue-mid:#b8cef5;
+  --text:#1a2540;
+  --muted:#0b487f;
+  --border:#dce8f8;
+  --green:#2e9e6b;
+  --green-bg:#f0faf6;
+  --green-border:#b6e8d2;
+  --orange:#e07a2f;
+  --orange-bg:#fef6ee;
+  --red:#e05c5c;
+  --red-bg:#fef2f2;
+  --red-border:#fcd6d6;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; padding-bottom:80px;
+}
+
+.bg-orb{ position:fixed; border-radius:50%; pointer-events:none; z-index:0; filter:blur(60px); }
+.bg-orb-1{ width:400px; height:400px; background:rgba(47,107,205,0.07); top:-100px; right:-100px; }
+.bg-orb-2{ width:300px; height:300px; background:rgba(11,72,127,0.05); bottom:100px; left:-80px; }
+
+.nav{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 20px 0; position:relative; z-index:10;
+}
+.nav-back{ display:flex; align-items:center; gap:8px; font-size:14px; color:var(--muted); cursor:pointer; background:none; border:none; font-family:'DM Sans',sans-serif; transition:color 0.2s; }
+.nav-back:hover{ color:var(--text); }
+.nav-title{ font-family:'Playfair Display',serif; font-size:16px; font-weight:600; color:var(--text); }
+
+.container{ max-width:480px; margin:0 auto; padding:0 16px; position:relative; z-index:1; }
+
+.hero{ padding:28px 0 20px; animation:fadeUp 0.5s ease both; }
+.hero-eyebrow{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.hero-title{ font-family:'Playfair Display',serif; font-size:26px; font-weight:700; line-height:1.15; color:var(--text); }
+.hero-title em{ font-style:italic; color:var(--blue); }
+.hero-sub{ font-size:13px; color:var(--muted); margin-top:8px; font-weight:300; }
+
+/* Type selector */
+.type-selector{
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+  margin-bottom:20px; animation:fadeUp 0.5s 0.1s ease both;
+}
+
+.type-btn{
+  background:var(--white); border:1.5px solid var(--border);
+  border-radius:14px; padding:16px 10px; text-align:center;
+  cursor:pointer; transition:all 0.2s; font-family:'DM Sans',sans-serif;
+}
+
+.type-btn:hover{ border-color:var(--blue-mid); }
+
+.type-btn.active{
+  background:var(--blue-light); border-color:var(--blue);
+  box-shadow:0 0 0 3px rgba(47,107,205,0.1);
+}
+
+.type-icon{ font-size:24px; margin-bottom:8px; }
+.type-label{ font-size:12px; font-weight:500; color:var(--text); }
+.type-desc{ font-size:10px; color:var(--muted); margin-top:2px; }
+
+/* Form card */
+.form-card{
+  background:var(--white); border:1px solid var(--border);
+  border-radius:20px; padding:24px;
+  box-shadow:0 4px 24px rgba(47,107,205,0.08);
+  margin-bottom:20px; animation:fadeUp 0.5s 0.15s ease both;
+}
+
+.form-section{ margin-bottom:20px; }
+.form-section:last-child{ margin-bottom:0; }
+
+.form-label{
+  display:block; font-size:11px; font-weight:500;
+  letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:10px;
+}
+
+/* Upload area */
+.upload-area{
+  border:2px dashed var(--border); border-radius:12px;
+  padding:28px 20px; text-align:center; cursor:pointer;
+  transition:all 0.2s; background:var(--bg);
+  position:relative;
+}
+
+.upload-area:hover{ border-color:var(--blue-mid); background:var(--blue-light); }
+.upload-area.dragover{ border-color:var(--blue); background:var(--blue-light); }
+
+.upload-icon{ font-size:28px; margin-bottom:8px; }
+.upload-title{ font-size:14px; font-weight:500; color:var(--text); margin-bottom:4px; }
+.upload-sub{ font-size:12px; color:var(--muted); }
+
+.upload-input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+
+/* Preview area */
+.preview-area{ margin-top:14px; }
+
+.preview-grid{ display:flex; gap:10px; flex-wrap:wrap; }
+
+.preview-item{
+  position:relative; border-radius:10px; overflow:hidden;
+  border:1px solid var(--border);
+}
+
+.preview-item img{
+  width:80px; height:80px; object-fit:cover; display:block;
+}
+
+.preview-item.main img{
+  width:120px; height:120px;
+}
+
+.preview-remove{
+  position:absolute; top:4px; right:4px;
+  width:20px; height:20px; border-radius:50%;
+  background:rgba(0,0,0,0.6); color:white;
+  border:none; cursor:pointer; font-size:11px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.thumbnail-label{
+  font-size:10px; color:var(--muted); text-align:center;
+  margin-top:4px; font-weight:500;
+}
+
+/* Video preview */
+.video-preview{
+  width:100%; border-radius:10px;
+  border:1px solid var(--border); display:block;
+  max-height:200px; object-fit:cover;
+}
+
+.thumbnail-extracted{
+  display:flex; gap:12px; align-items:flex-start; margin-top:10px;
+}
+
+.thumb-img{ width:80px; height:80px; border-radius:8px; object-fit:cover; border:1px solid var(--border); flex-shrink:0; }
+
+.thumb-info{ flex:1; }
+.thumb-title{ font-size:12px; font-weight:500; color:var(--text); margin-bottom:4px; }
+.thumb-sub{ font-size:11px; color:var(--muted); line-height:1.4; }
+
+/* Inputs */
+input, textarea{
+  width:100%; padding:12px 14px;
+  background:var(--bg); border:1.5px solid var(--border);
+  border-radius:10px; color:var(--text);
+  font-family:'DM Sans',sans-serif; font-size:14px; outline:none;
+  transition:border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+input:focus, textarea:focus{
+  border-color:var(--blue-mid); background:white;
+  box-shadow:0 0 0 4px rgba(47,107,205,0.08);
+}
+
+input::placeholder, textarea::placeholder{ color:#b0c0d8; }
+
+textarea{ resize:vertical; min-height:80px; line-height:1.5; }
+
+/* Validate button */
+.validate-btn{
+  width:100%; padding:15px;
+  background:linear-gradient(135deg,var(--blue-deep),var(--blue));
+  color:white; border:none; border-radius:12px;
+  font-family:'DM Sans',sans-serif; font-size:15px; font-weight:500;
+  cursor:pointer; transition:opacity 0.2s, transform 0.15s;
+  box-shadow:0 4px 14px rgba(47,107,205,0.3);
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  min-height:52px; animation:fadeUp 0.5s 0.2s ease both;
+}
+
+.validate-btn:hover{ opacity:0.92; transform:translateY(-1px); }
+.validate-btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+
+.btn-spinner{
+  width:18px; height:18px; border:2px solid rgba(255,255,255,0.4);
+  border-top-color:white; border-radius:50%;
+  animation:spin 0.7s linear infinite; display:none;
+}
+
+@keyframes spin{ to{transform:rotate(360deg)} }
+
+/* Results */
+.results-card{
+  background:var(--white); border:1px solid var(--border);
+  border-radius:20px; overflow:hidden;
+  box-shadow:0 4px 24px rgba(47,107,205,0.08);
+  margin-top:20px; animation:fadeUp 0.5s ease both;
+}
+
+.results-header{
+  background:linear-gradient(135deg,var(--blue-deep),var(--blue));
+  padding:20px 24px; position:relative; overflow:hidden;
+}
+
+.results-header::before{ content:''; position:absolute; top:-30px; right:-30px; width:120px; height:120px; background:rgba(255,255,255,0.06); border-radius:50%; }
+
+.results-header-label{ font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-bottom:4px; }
+.results-header-title{ font-family:'Playfair Display',serif; font-size:18px; font-weight:600; color:white; }
+
+.results-body{ padding:20px 24px; }
+
+.analysis-content{ font-size:14px; line-height:1.75; color:var(--text); }
+.analysis-content strong{ font-weight:600; color:var(--blue-deep); }
+
+/* Score highlight */
+.score-highlight{
+  background:var(--blue-light); border:1px solid var(--blue-mid);
+  border-radius:12px; padding:14px 16px; margin-top:16px;
+  display:flex; align-items:center; gap:12px;
+}
+
+.score-num{
+  font-family:'Playfair Display',serif; font-size:32px;
+  font-weight:700; color:var(--blue); line-height:1; flex-shrink:0;
+}
+
+.score-label{ font-size:12px; color:var(--muted); }
+.score-label strong{ display:block; font-size:14px; color:var(--text); margin-bottom:2px; }
+
+/* Error */
+.error-msg{ background:var(--red-bg); border:1px solid var(--red-border); border-radius:12px; padding:14px 16px; font-size:13px; color:var(--red); margin-top:12px; }
+
+@keyframes fadeUp{ from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/* Hidden canvas for thumbnail extraction */
+#thumbCanvas{ display:none; }
+
+</style>
+</head>
+
+<body>
+
+<canvas id="thumbCanvas"></canvas>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<div class="nav">
+  <button class="nav-back" onclick="window.location='dashboard.html'">← Back</button>
+  <div class="nav-title">Reel Validator</div>
+  <div style="width:60px"></div>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Reel Validator</div>
+    <div class="hero-title">Post with <em>confidence.</em></div>
+    <div class="hero-sub">Upload before you post. Get AI feedback on your hook, thumbnail, caption and hashtags.</div>
+  </div>
+
+  <!-- Type Selector -->
+  <div class="type-selector">
+    <div class="type-btn active" onclick="selectType('reel', this)">
+      <div class="type-icon">🎬</div>
+      <div class="type-label">Reel</div>
+      <div class="type-desc">Video content</div>
+    </div>
+    <div class="type-btn" onclick="selectType('image', this)">
+      <div class="type-icon">📸</div>
+      <div class="type-label">Image</div>
+      <div class="type-desc">Single photo</div>
+    </div>
+    <div class="type-btn" onclick="selectType('sidecar', this)">
+      <div class="type-icon">🖼️</div>
+      <div class="type-label">Carousel</div>
+      <div class="type-desc">Multiple slides</div>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <div class="form-card">
+
+    <!-- Upload section -->
+    <div class="form-section" id="uploadSection">
+      <label class="form-label" id="uploadLabel">Upload your Reel</label>
+
+      <div class="upload-area" id="uploadArea"
+        ondragover="handleDragOver(event)"
+        ondragleave="handleDragLeave(event)"
+        ondrop="handleDrop(event)">
+        <input type="file" class="upload-input" id="fileInput" accept="video/*" onchange="handleFileSelect(event)">
+        <div class="upload-icon">📤</div>
+        <div class="upload-title" id="uploadTitle">Tap to upload your reel</div>
+        <div class="upload-sub" id="uploadSub">MP4, MOV up to 100MB</div>
+      </div>
+
+      <div class="preview-area" id="previewArea"></div>
+    </div>
+
+    <!-- Hook (reel only) -->
+    <div class="form-section" id="hookSection">
+      <label class="form-label">Your opening hook line</label>
+      <input type="text" id="hookInput" placeholder="e.g. 'This one mistake is killing your reach...'">
+    </div>
+
+    <!-- Caption -->
+    <div class="form-section">
+      <label class="form-label">Caption</label>
+      <textarea id="captionInput" placeholder="Paste your caption here..."></textarea>
+    </div>
+
+    <!-- Hashtags -->
+    <div class="form-section">
+      <label class="form-label">Hashtags</label>
+      <input type="text" id="hashtagInput" placeholder="#makeupartist #hyderabad #beautytips">
+    </div>
+
+  </div>
+
+  <button class="validate-btn" id="validateBtn" onclick="validate()">
+    <span id="validateText">✨ Validate Now</span>
+    <div class="btn-spinner" id="validateSpinner"></div>
+  </button>
+
+  <div id="errorMsg"></div>
+  <div id="resultsArea"></div>
+
+</div>
+
+<script>
+
+let currentType = 'reel'
+let uploadedImages = [] // { data: base64, mediaType: string }
+let thumbnailData = null
+let creatorCategory = ''
+
+async function init(){
+  const { data: sd } = await client.auth.getSession()
+  if(!sd.session){ window.location='index.html'; return }
+
+  const user = sd.session.user
+  const { data: profile } = await client
+    .from('profiles')
+    .select('category')
+    .eq('id', user.id)
+    .single()
+
+  creatorCategory = profile?.category || 'General'
+}
+
+function selectType(type, el){
+  currentType = type
+  uploadedImages = []
+  thumbnailData = null
+
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'))
+  el.classList.add('active')
+
+  document.getElementById('previewArea').innerHTML = ''
+  document.getElementById('fileInput').value = ''
+
+  // Update upload area
+  const hookSection = document.getElementById('hookSection')
+  const uploadLabel = document.getElementById('uploadLabel')
+  const uploadTitle = document.getElementById('uploadTitle')
+  const uploadSub = document.getElementById('uploadSub')
+  const fileInput = document.getElementById('fileInput')
+
+  if(type === 'reel'){
+    uploadLabel.textContent = 'Upload your Reel'
+    uploadTitle.textContent = 'Tap to upload your reel'
+    uploadSub.textContent = 'MP4, MOV up to 100MB'
+    fileInput.accept = 'video/*'
+    fileInput.multiple = false
+    hookSection.style.display = 'block'
+  } else if(type === 'image'){
+    uploadLabel.textContent = 'Upload your Image'
+    uploadTitle.textContent = 'Tap to upload your image'
+    uploadSub.textContent = 'JPG, PNG up to 10MB'
+    fileInput.accept = 'image/*'
+    fileInput.multiple = false
+    hookSection.style.display = 'none'
+  } else if(type === 'sidecar'){
+    uploadLabel.textContent = 'Upload your Carousel Slides (in order)'
+    uploadTitle.textContent = 'Tap to upload your slides'
+    uploadSub.textContent = 'JPG, PNG — select multiple files in order'
+    fileInput.accept = 'image/*'
+    fileInput.multiple = true
+    hookSection.style.display = 'none'
+  }
+
+  document.getElementById('resultsArea').innerHTML = ''
+  document.getElementById('errorMsg').innerHTML = ''
+}
+
+function handleDragOver(e){
+  e.preventDefault()
+  document.getElementById('uploadArea').classList.add('dragover')
+}
+
+function handleDragLeave(e){
+  document.getElementById('uploadArea').classList.remove('dragover')
+}
+
+function handleDrop(e){
+  e.preventDefault()
+  document.getElementById('uploadArea').classList.remove('dragover')
+  const files = e.dataTransfer.files
+  if(files.length > 0) processFiles(files)
+}
+
+function handleFileSelect(e){
+  const files = e.target.files
+  if(files.length > 0) processFiles(files)
+}
+
+async function processFiles(files){
+  uploadedImages = []
+  thumbnailData = null
+  document.getElementById('previewArea').innerHTML = ''
+
+  if(currentType === 'reel'){
+    const file = files[0]
+    if(!file.type.startsWith('video/')){ showError('Please upload a video file.'); return }
+    await processVideo(file)
+  } else if(currentType === 'image'){
+    const file = files[0]
+    if(!file.type.startsWith('image/')){ showError('Please upload an image file.'); return }
+    await processImage(file, true)
+  } else if(currentType === 'sidecar'){
+    const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'))
+    if(imageFiles.length < 2){ showError('Please upload at least 2 images for a carousel.'); return }
+    if(imageFiles.length > 10){ showError('Maximum 10 slides for a carousel.'); return }
+    for(const f of imageFiles){ await processImage(f, false) }
+    renderSidecarPreview()
+  }
+}
+
+async function processVideo(file){
+  const previewArea = document.getElementById('previewArea')
+
+  // Show video preview
+  const videoUrl = URL.createObjectURL(file)
+  const video = document.createElement('video')
+  video.src = videoUrl
+  video.className = 'video-preview'
+  video.controls = true
+  video.muted = true
+  previewArea.appendChild(video)
+
+  // Extract first frame as thumbnail
+  video.addEventListener('loadeddata', () => {
+    video.currentTime = 0
+  })
+
+  video.addEventListener('seeked', () => {
+    const canvas = document.getElementById('thumbCanvas')
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(video, 0, 0)
+
+    const thumbBase64 = canvas.toDataURL('image/jpeg', 0.8).split(',')[1]
+    thumbnailData = { data: thumbBase64, mediaType: 'image/jpeg' }
+    uploadedImages = [thumbnailData]
+
+    // Show thumbnail info
+    const thumbWrap = document.createElement('div')
+    thumbWrap.className = 'thumbnail-extracted'
+    thumbWrap.innerHTML = `
+      <img class="thumb-img" src="data:image/jpeg;base64,${thumbBase64}" alt="thumbnail">
+      <div class="thumb-info">
+        <div class="thumb-title">✅ Thumbnail extracted</div>
+        <div class="thumb-sub">First frame captured. This is what viewers see before hitting play.</div>
+      </div>
+    `
+    previewArea.appendChild(thumbWrap)
+  })
+}
+
+function processImage(file, isMain){
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const base64 = e.target.result.split(',')[1]
+      const mediaType = file.type || 'image/jpeg'
+      uploadedImages.push({ data: base64, mediaType })
+      if(isMain) renderSingleImagePreview(e.target.result)
+      resolve()
+    }
+    reader.readAsDataURL(file)
+  })
+}
+
+function renderSingleImagePreview(src){
+  const previewArea = document.getElementById('previewArea')
+  previewArea.innerHTML = `
+    <div class="preview-item main">
+      <img src="${src}" alt="preview">
+    </div>
+  `
+}
+
+function renderSidecarPreview(){
+  const previewArea = document.getElementById('previewArea')
+  previewArea.innerHTML = `
+    <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${uploadedImages.length} slides loaded</div>
+    <div class="preview-grid">
+      ${uploadedImages.map((img,i) => `
+        <div class="preview-item">
+          <img src="data:${img.mediaType};base64,${img.data}" alt="slide ${i+1}">
+          <div class="thumbnail-label">Slide ${i+1}</div>
+        </div>
+      `).join('')}
+    </div>
+  `
+}
+
+function showError(msg){
+  document.getElementById('errorMsg').innerHTML = `<div class="error-msg">${msg}</div>`
+}
+
+async function validate(){
+  document.getElementById('errorMsg').innerHTML = ''
+
+  if(uploadedImages.length === 0){
+    showError(`Please upload ${currentType === 'reel' ? 'a video' : currentType === 'image' ? 'an image' : 'your carousel slides'} first.`)
+    return
+  }
+
+  const hook = document.getElementById('hookInput').value.trim()
+  const caption = document.getElementById('captionInput').value.trim()
+  const hashtags = document.getElementById('hashtagInput').value.trim()
+
+  if(!caption){ showError('Please add your caption.'); return }
+
+  // Set loading state
+  document.getElementById('validateBtn').disabled = true
+  document.getElementById('validateText').style.display = 'none'
+  document.getElementById('validateSpinner').style.display = 'block'
+  document.getElementById('resultsArea').innerHTML = ''
+
+  try {
+    const res = await fetch('/api/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: currentType,
+        images: uploadedImages,
+        hook: hook,
+        caption: caption,
+        hashtags: hashtags,
+        category: creatorCategory
+      })
+    })
+
+    const data = await res.json()
+
+    if(!res.ok || !data.analysis){
+      showError(data.error || 'Something went wrong. Please try again.')
+      return
+    }
+
+    renderResults(data.analysis)
+
+  } catch(err){
+    showError('Connection issue. Please try again.')
+  } finally {
+    document.getElementById('validateBtn').disabled = false
+    document.getElementById('validateText').style.display = 'inline'
+    document.getElementById('validateSpinner').style.display = 'none'
+  }
+}
+
+function renderResults(analysis){
+
+  // Extract score if present
+  const scoreMatch = analysis.match(/(\d+)\s*\/\s*10/)
+  const score = scoreMatch ? scoreMatch[1] : null
+
+  const formatted = analysis
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>')
+
+  document.getElementById('resultsArea').innerHTML = `
+    <div class="results-card">
+      <div class="results-header">
+        <div class="results-header-label">Vikram's Verdict</div>
+        <div class="results-header-title">Here's what needs to change</div>
+      </div>
+      <div class="results-body">
+        <div class="analysis-content">${formatted}</div>
+        ${score ? `
+        <div class="score-highlight">
+          <div class="score-num">${score}<span style="font-size:16px;color:var(--blue-mid)">/10</span></div>
+          <div class="score-label">
+            <strong>${getScoreLabel(parseInt(score))}</strong>
+            ${getScoreAdvice(parseInt(score))}
+          </div>
+        </div>` : ''}
+      </div>
+    </div>
+  `
+
+  // Scroll to results
+  document.getElementById('resultsArea').scrollIntoView({ behavior:'smooth', block:'start' })
+}
+
+function getScoreLabel(score){
+  if(score >= 8) return '🔥 Ready to post'
+  if(score >= 6) return '⚡ Almost there'
+  if(score >= 4) return '⚠️ Needs work'
+  return '❌ Don\'t post yet'
+}
+
+function getScoreAdvice(score){
+  if(score >= 8) return 'Strong content — go ahead and post.'
+  if(score >= 6) return 'Fix the flagged issues first, then post.'
+  if(score >= 4) return 'Several things need attention before posting.'
+  return 'Significant changes needed. Read the feedback carefully.'
+}
+
+init()
+
+</script>
+
+</body>
+</html>
