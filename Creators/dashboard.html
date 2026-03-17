@@ -7,20 +7,17 @@
 <title>Dashboard — Creator Intelligence</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="supabase.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 
 <style>
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+*{ margin:0; padding:0; box-sizing:border-box; }
 
 :root{
   --bg: #f0f5fb;
   --white: #ffffff;
   --blue: #2f6bcd;
+  --blue-deep: #0b487f;
   --blue-light: #e8f0fc;
   --blue-mid: #b8cef5;
   --text: #1a2540;
@@ -40,343 +37,141 @@ body{
 body::before{
   content:'';
   position:fixed;
-  top:-100px;
-  right:-100px;
-  width:500px;
-  height:500px;
+  top:-100px; right:-100px;
+  width:500px; height:500px;
   background: radial-gradient(circle, rgba(47,107,205,0.07) 0%, transparent 70%);
-  pointer-events:none;
-  z-index:0;
+  pointer-events:none; z-index:0;
 }
 
-/* Nav */
 .nav{
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 20px 0;
-  position: relative;
-  z-index: 1;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 20px 0; position:relative; z-index:1;
 }
 
 .nav-brand{
-  font-family: 'Playfair Display', serif;
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--text);
+  font-family:'Playfair Display',serif;
+  font-size:16px; font-weight:600; color:var(--text);
 }
 
 .nav-logout{
-  font-size: 13px;
-  color: var(--muted);
-  cursor: pointer;
-  background: none;
-  border: none;
-  font-family: 'Inter', sans-serif;
-  transition: color 0.2s;
+  font-size:13px; color:var(--muted); cursor:pointer;
+  background:none; border:none; font-family:'Inter',sans-serif;
+  transition:color 0.2s;
 }
 
-.nav-logout:hover{ color: var(--text); }
+.nav-logout:hover{ color:var(--text); }
 
 .container{
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 0 16px;
-  position: relative;
-  z-index: 1;
+  max-width:480px; margin:0 auto;
+  padding:0 16px; position:relative; z-index:1;
 }
 
-/* Loading */
 .loading-card{
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 48px 28px;
-  text-align: center;
-  box-shadow: 0 4px 24px rgba(47,107,205,0.08);
-  margin-top: 24px;
+  background:var(--white); border:1px solid var(--border);
+  border-radius:20px; padding:48px 28px; text-align:center;
+  box-shadow:0 4px 24px rgba(47,107,205,0.08); margin-top:24px;
 }
 
 .spinner{
-  width: 36px;
-  height: 36px;
-  border: 3px solid var(--blue-light);
-  border-top-color: var(--blue);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 20px;
+  width:36px; height:36px;
+  border:3px solid var(--blue-light); border-top-color:var(--blue);
+  border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 20px;
 }
 
-@keyframes spin{ to{ transform: rotate(360deg); } }
+@keyframes spin{ to{ transform:rotate(360deg); } }
 
-.loading-title{
-  font-family: 'Playfair Display', serif;
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
+.loading-title{ font-family:'Playfair Display',serif; font-size:18px; font-weight:600; margin-bottom:8px; }
+.loading-sub{ color:var(--muted); font-size:13px; font-weight:300; }
 
-.loading-sub{
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 300;
-}
+/* Hero */
+.hero{ padding:32px 0 8px; animation:fadeUp 0.5s ease both; }
+.hero-greeting{ font-size:13px; font-weight:400; color:var(--muted); letter-spacing:0.04em; text-transform:uppercase; margin-bottom:6px; }
+.hero-name{ font-family:'Playfair Display',serif; font-size:32px; font-weight:600; color:var(--text); line-height:1.1; }
+.hero-name span{ font-style:italic; color:var(--blue); }
+.hero-sub{ font-size:14px; color:var(--muted); margin-top:10px; font-weight:300; line-height:1.5; }
 
-/* Hero greeting */
-.hero{
-  padding: 32px 0 8px;
-  animation: fadeUp 0.5s ease both;
-}
-
-.hero-greeting{
-  font-size: 13px;
-  font-weight: 400;
-  color: var(--muted);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.hero-name{
-  font-family: 'Playfair Display', serif;
-  font-size: 32px;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1.1;
-}
-
-.hero-name span{
-  font-style: italic;
-  color: var(--blue);
-}
-
-.hero-sub{
-  font-size: 14px;
-  color: var(--muted);
-  margin-top: 10px;
-  font-weight: 300;
-  line-height: 1.5;
-}
-
-/* Profile pill */
-.profile-pill{
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 100px;
-  padding: 8px 16px 8px 8px;
-  margin-top: 20px;
-  box-shadow: 0 2px 8px rgba(47,107,205,0.06);
-  animation: fadeUp 0.5s 0.1s ease both;
-}
-
-.profile-pill img{
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.profile-pill-placeholder{
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: var(--blue-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-}
-
-.profile-pill-info{
-  display: flex;
-  flex-direction: column;
-}
-
-.profile-pill-handle{
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text);
-}
-
-.profile-pill-followers{
-  font-size: 11px;
-  color: var(--muted);
-}
-
-/* Stats row */
-.stats-row{
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 20px;
-  animation: fadeUp 0.5s 0.15s ease both;
-}
-
-.stat-box{
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 10px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(47,107,205,0.05);
-}
-
-.stat-box-value{
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--text);
-  line-height: 1;
-}
-
-.stat-box-label{
-  font-size: 10px;
-  color: var(--muted);
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+/* Pending scrape banner */
+.scrape-banner{
+  background:var(--blue-light); border:1px solid var(--blue-mid);
+  border-radius:12px; padding:12px 16px; margin-top:16px;
+  font-size:13px; color:var(--blue-deep); text-align:center;
+  animation:fadeUp 0.5s 0.1s ease both;
 }
 
 /* Section title */
 .section-title{
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin: 28px 0 14px;
-  animation: fadeUp 0.5s 0.2s ease both;
+  font-size:11px; font-weight:500; letter-spacing:0.08em;
+  text-transform:uppercase; color:var(--muted);
+  margin:28px 0 14px; animation:fadeUp 0.5s 0.2s ease both;
 }
 
-/* Feature blocks */
-.features{
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+/* Feature cards */
+.features{ display:flex; flex-direction:column; gap:12px; }
 
 .feature-card{
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 2px 12px rgba(47,107,205,0.06);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
-  text-decoration: none;
-  color: inherit;
+  background:var(--white); border:1px solid var(--border);
+  border-radius:16px; padding:20px;
+  box-shadow:0 2px 12px rgba(47,107,205,0.06);
+  display:flex; align-items:center; gap:16px;
+  cursor:pointer; transition:transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+  text-decoration:none; color:inherit;
 }
 
 .feature-card:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(47,107,205,0.12);
-  border-color: var(--blue-mid);
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(47,107,205,0.12);
+  border-color:var(--blue-mid);
 }
 
-.feature-card:active{
-  transform: translateY(0);
-}
+.feature-card:active{ transform:translateY(0); }
 
 .feature-icon{
-  width: 48px;
-  height: 48px;
-  border-radius: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  flex-shrink: 0;
+  width:48px; height:48px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0;
 }
 
-.feature-icon.blue{ background: linear-gradient(135deg, #e8f0fc, #d0e3fb); }
-.feature-icon.green{ background: linear-gradient(135deg, #e8f7f0, #c8edd9); }
-.feature-icon.orange{ background: linear-gradient(135deg, #fef3e8, #fde0c0); }
-.feature-icon.pink{ background: linear-gradient(135deg, #fde8f0, #fbc8da); }
-.feature-icon.purple{ background: linear-gradient(135deg, #f0e8fd, #ddc8fb); }
+.feature-icon.blue{ background:linear-gradient(135deg,#e8f0fc,#d0e3fb); }
+.feature-icon.green{ background:linear-gradient(135deg,#e8f7f0,#c8edd9); }
+.feature-icon.orange{ background:linear-gradient(135deg,#fef3e8,#fde0c0); }
+.feature-icon.pink{ background:linear-gradient(135deg,#fde8f0,#fbc8da); }
+.feature-icon.purple{ background:linear-gradient(135deg,#f0e8fd,#ddc8fb); }
 
-.feature-body{
-  flex: 1;
-  min-width: 0;
-}
-
-.feature-title{
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-
-.feature-desc{
-  font-size: 13px;
-  color: var(--muted);
-  font-weight: 300;
-  line-height: 1.4;
-}
+.feature-body{ flex:1; min-width:0; }
+.feature-title{ font-size:15px; font-weight:500; color:var(--text); margin-bottom:4px; }
+.feature-desc{ font-size:13px; color:var(--muted); font-weight:300; line-height:1.4; }
 
 .feature-badge{
-  font-size: 10px;
-  font-weight: 500;
-  padding: 3px 8px;
-  border-radius: 100px;
-  letter-spacing: 0.04em;
-  flex-shrink: 0;
+  font-size:10px; font-weight:500; padding:3px 8px;
+  border-radius:100px; letter-spacing:0.04em; flex-shrink:0;
 }
 
-.feature-badge.new{
-  background: linear-gradient(135deg, var(--blue), #5b9cf6);
-  color: white;
-}
+.feature-badge.new{ background:linear-gradient(135deg,var(--blue),#5b9cf6); color:white; }
+.feature-badge.soon{ background:#f0f0f0; color:#999; }
+.feature-arrow{ color:var(--blue-mid); font-size:18px; flex-shrink:0; }
 
-.feature-badge.soon{
-  background: #f0f0f0;
-  color: #999;
-}
-
-.feature-arrow{
-  color: var(--blue-mid);
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-/* Animations */
-.feature-card:nth-child(1){ animation: fadeUp 0.5s 0.25s ease both; }
-.feature-card:nth-child(2){ animation: fadeUp 0.5s 0.3s ease both; }
-.feature-card:nth-child(3){ animation: fadeUp 0.5s 0.35s ease both; }
-.feature-card:nth-child(4){ animation: fadeUp 0.5s 0.4s ease both; }
-.feature-card:nth-child(5){ animation: fadeUp 0.5s 0.45s ease both; }
+.feature-card:nth-child(1){ animation:fadeUp 0.5s 0.25s ease both; }
+.feature-card:nth-child(2){ animation:fadeUp 0.5s 0.3s ease both; }
+.feature-card:nth-child(3){ animation:fadeUp 0.5s 0.35s ease both; }
+.feature-card:nth-child(4){ animation:fadeUp 0.5s 0.4s ease both; }
+.feature-card:nth-child(5){ animation:fadeUp 0.5s 0.45s ease both; }
 
 @keyframes fadeUp{
   from{ opacity:0; transform:translateY(16px); }
   to{ opacity:1; transform:translateY(0); }
 }
 
-/* Error */
 .error-card{
-  background: #fef2f2;
-  border: 1px solid #fcd6d6;
-  border-radius: 16px;
-  padding: 28px;
-  text-align: center;
-  margin-top: 24px;
+  background:#fef2f2; border:1px solid #fcd6d6;
+  border-radius:16px; padding:28px; text-align:center; margin-top:24px;
 }
 
-.error-card p{ color: #e05c5c; font-size: 14px; margin-bottom: 16px; }
+.error-card p{ color:#e05c5c; font-size:14px; margin-bottom:16px; }
 
 .btn-retry{
-  padding: 10px 24px;
-  background: var(--blue);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
+  padding:10px 24px; background:var(--blue); color:white;
+  border:none; border-radius:8px; font-family:'Inter',sans-serif;
+  font-size:13px; font-weight:500; cursor:pointer;
 }
 
 </style>
@@ -390,7 +185,13 @@ body::before{
 </div>
 
 <div class="container">
-  <div id="content"></div>
+  <div id="content">
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-title">Loading your dashboard</div>
+      <div class="loading-sub">Just a second...</div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -398,10 +199,7 @@ body::before{
 async function init(){
 
   const { data: sessionData } = await client.auth.getSession()
-  if(!sessionData.session){
-    window.location = 'index.html'
-    return
-  }
+  if(!sessionData.session){ window.location='index.html'; return }
 
   const user = sessionData.session.user
 
@@ -416,21 +214,7 @@ async function init(){
     return
   }
 
-  const lastScraped = profile.last_scraped_at ? new Date(profile.last_scraped_at) : null
-  const now = new Date()
-  const hoursSince = lastScraped ? (now - lastScraped) / (1000 * 60 * 60) : null
-  const needsScrape = !lastScraped || hoursSince >= 24
-
-  if(needsScrape){
-    showLoading()
-    const res = await fetch(`/api/scrape?user_id=${user.id}&username=${profile.instagram}`)
-    if(!res.ok){
-      const err = await res.json()
-      showError(err.error || 'Scrape failed. Please try again.')
-      return
-    }
-  }
-
+  // Load latest snapshot — no scraping here
   const { data: snapshot } = await client
     .from('profile_snapshots')
     .select('*')
@@ -439,56 +223,34 @@ async function init(){
     .limit(1)
     .single()
 
-  if(!snapshot){
-    showError('No data found. Please try refreshing.')
-    return
-  }
-
   showDashboard(profile, snapshot)
-}
-
-function showLoading(){
-  document.getElementById('content').innerHTML = `
-    <div class="loading-card">
-      <div class="spinner"></div>
-      <div class="loading-title">Fetching your Instagram data</div>
-      <div class="loading-sub">This takes about 15–30 seconds...</div>
-    </div>
-  `
-}
-
-function showError(msg){
-  document.getElementById('content').innerHTML = `
-    <div class="error-card">
-      <p>${msg}</p>
-      <button class="btn-retry" onclick="init()">Retry</button>
-    </div>
-  `
 }
 
 function formatCount(n){
   if(!n) return '0'
-  if(n >= 1000000) return (n / 1000000).toFixed(1) + 'M'
-  if(n >= 1000) return (n / 1000).toFixed(1) + 'K'
+  if(n >= 1000000) return (n/1000000).toFixed(1)+'M'
+  if(n >= 1000) return (n/1000).toFixed(1)+'K'
   return n.toLocaleString()
 }
 
 function showDashboard(profile, snapshot){
-
   const firstName = profile.name ? profile.name.split(' ')[0] : 'there'
-
-  const picHtml = snapshot.profile_pic_url
-    ? `<img src="${snapshot.profile_pic_url}" alt="pic">`
-    : `<div class="profile-pill-placeholder">👤</div>`
+  const hasScrapeData = !!snapshot
+  const lastScraped = profile.last_scraped_at ? new Date(profile.last_scraped_at) : null
+  const scrapePending = !lastScraped
 
   document.getElementById('content').innerHTML = `
 
     <div class="hero">
-      <div class="hero-greeting">Welcome</div>
+      <div class="hero-greeting">Welcome back</div>
       <div class="hero-name">Hi, <span>${firstName}</span> 👋</div>
       <div class="hero-sub">Here's what you can do with your Creator Intelligence today.</div>
     </div>
 
+    ${scrapePending ? `
+    <div class="scrape-banner">
+      ⏳ We're fetching your Instagram data in the background. Check back in a minute!
+    </div>` : ''}
 
     <div class="section-title">Your tools</div>
 
