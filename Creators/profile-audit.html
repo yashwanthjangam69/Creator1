@@ -373,7 +373,23 @@ function renderAudit(profile, metrics, growth){
         </div>
       </div>
     </div>
-
+    
+    <!-- Talk to Vikram -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">🤖</div>
+        <div class="section-title">Want to go deeper?</div>
+      </div>
+      <div class="vikram-cta">
+        <div class="vikram-cta-label">Your AI Brand Manager</div>
+        <div class="vikram-cta-title">Talk to Vikram about your numbers</div>
+        <div class="vikram-cta-desc">Vikram has already looked at your profile data and is ready to help you understand what the numbers mean, what's working, and exactly what to do next to grow.</div>
+        <button class="vikram-cta-btn" onclick="window.location='vikram.html'">
+          Chat with Vikram →
+        </button>
+      </div>
+    </div>
+    
     <!-- Hashtags -->
     ${metrics.topHashtags.length > 0 ? `
     <div class="section">
@@ -408,22 +424,6 @@ function renderAudit(profile, metrics, growth){
         </div>
       </div>
     </div>` : ''}
-
-    <!-- Talk to Vikram -->
-    <div class="section">
-      <div class="section-head">
-        <div class="section-icon">🤖</div>
-        <div class="section-title">Want to go deeper?</div>
-      </div>
-      <div class="vikram-cta">
-        <div class="vikram-cta-label">Your AI Brand Manager</div>
-        <div class="vikram-cta-title">Talk to Vikram about your numbers</div>
-        <div class="vikram-cta-desc">Vikram has already looked at your profile data and is ready to help you understand what the numbers mean, what's working, and exactly what to do next to grow.</div>
-        <button class="vikram-cta-btn" onclick="window.location='vikram.html'">
-          Chat with Vikram →
-        </button>
-      </div>
-    </div>
 
     <!-- Weekly Report -->
     <div class="section">
