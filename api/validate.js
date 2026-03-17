@@ -1,4 +1,3 @@
-
 export default async function handler(req, res) {
 
   if (req.method !== 'POST') {
@@ -11,9 +10,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'At least one image is required' })
   }
 
+  const year = new Date().getFullYear()
+
+  const personality = `You are the most brutally honest Instagram growth expert in India. You don't sugarcoat anything. If something is bad, you say it's bad — directly. You've seen thousands of posts fail because creators were too afraid to hear the truth. Your job is to tell them exactly what's wrong AND give specific, creative new ideas to fix it. Don't just say "improve your caption" — give them an actual better caption. Don't just say "use better hashtags" — give them the exact hashtags to use. Don't just say "fix the hook" — write them a better hook. You understand Indian audiences deeply — what triggers them to stop scrolling, what makes them save, share, and comment in India in ${year}.`
+
   try {
 
-    // Build image content blocks for Claude vision
     const imageBlocks = images.map(img => ({
       type: 'image',
       source: {
@@ -23,14 +25,13 @@ export default async function handler(req, res) {
       }
     }))
 
-    // Build the analysis prompt based on content type
     let analysisPrompt = ''
 
     if (type === 'reel') {
-      analysisPrompt = `You are an expert Instagram Reel strategist who deeply understands the Indian Instagram ecosystem, Indian audience psychology, and what makes content go viral in India in ${new Date().getFullYear()}.
+
+      analysisPrompt = `${personality}
 
 Analyze this Reel submission:
-
 THUMBNAIL (first frame): [See image above]
 HOOK LINE: "${hook || 'Not provided'}"
 CAPTION: "${caption || 'Not provided'}"
@@ -39,28 +40,29 @@ CREATOR CATEGORY: ${category || 'General'}
 
 Give a structured analysis with these exact sections:
 
-**🎬 Thumbnail Analysis**
-Look at the thumbnail image carefully. Is it scroll-stopping? Does it have a clear subject? Is there too much text? Would an Indian Instagram user stop scrolling for this? Be specific about what you see.
+**🎬 Thumbnail**
+Look at the thumbnail. Is it scroll-stopping? Be brutally honest about what you see — lighting, subject, text, visual clarity. Would an Indian viewer stop for this?
 
-**🪝 Hook Analysis**
-Is the hook strong enough to make someone watch past 3 seconds? Does it create curiosity, promise value, or trigger emotion? For Indian audiences specifically — does it work?
+**🪝 Hook**
+Is this hook strong enough? Does it create curiosity or promise value? Be direct. If it's weak, say so.
 
-**✍️ Caption Analysis**
-Is the caption compelling? Does it complement the reel? Does it have a call to action? Is the length appropriate?
+**✍️ Caption**
+Is the caption working? First line strong enough? CTA present? Be specific about what's wrong.
 
-**#️⃣ Hashtag Analysis**
-Are these hashtags relevant? Too broad or too niche? Mix of sizes? Any missing hashtags for the ${category || 'general'} niche in India?
+**#️⃣ Hashtags**
+Are these hashtags right? Too broad? Too niche? What's missing?
 
 **📊 Overall Score**
-Give a score out of 10 and one clear thing to fix before posting.
+Give a score out of 10. One clear verdict.
 
-Be direct and specific. Reference what you actually see in the thumbnail.`
+**💡 Suggested Improvements**
+Write a better hook. Write a better caption. Give exactly 10 better hashtags for the ${category || 'general'} niche in India. Be specific — give them something they can copy and use right now.`
 
     } else if (type === 'image') {
-      analysisPrompt = `You are an expert Instagram strategist who deeply understands the Indian Instagram ecosystem and what makes single image posts perform well in India in ${new Date().getFullYear()}.
+
+      analysisPrompt = `${personality}
 
 Analyze this single image post:
-
 IMAGE: [See image above]
 CAPTION: "${caption || 'Not provided'}"
 HASHTAGS: "${hashtags || 'Not provided'}"
@@ -68,55 +70,52 @@ CREATOR CATEGORY: ${category || 'General'}
 
 Give a structured analysis with these exact sections:
 
-**🖼️ Image Analysis**
-Look at the image carefully. Is it visually strong? Good composition? Lighting? Does it stop the scroll? What emotion does it evoke? Would an Indian Instagram user engage with this?
+**🖼️ Image**
+Look at the image carefully. Composition, lighting, subject clarity, visual appeal. Would an Indian Instagram user stop scrolling for this? Be brutally honest.
 
-**✍️ Caption Analysis**
-Is the caption compelling? Does it add context or emotion to the image? Is there a hook in the first line? Call to action?
+**✍️ Caption**
+Is the caption compelling? First line hook? CTA? What's weak?
 
-**#️⃣ Hashtag Analysis**
-Are these hashtags relevant and well-mixed? Any missing tags for the ${category || 'general'} niche in India?
+**#️⃣ Hashtags**
+Are these right for the ${category || 'general'} niche in India? What's missing?
 
 **📊 Overall Score**
-Score out of 10 and one clear thing to fix before posting.
+Score out of 10. One clear verdict.
 
-Be direct and specific about what you see in the image.`
+**💡 Suggested Improvements**
+Write a better caption. Give exactly 10 better hashtags for the ${category || 'general'} niche in India. Give them something they can copy right now.`
 
     } else if (type === 'sidecar') {
-      analysisPrompt = `You are an expert Instagram strategist who deeply understands carousel/sidecar posts and what makes them perform well in India in ${new Date().getFullYear()}.
 
-Analyze this carousel/sidecar post (${images.length} slides):
+      analysisPrompt = `${personality}
 
-SLIDES: [See images above — in order from first to last]
+Analyze this carousel post (${images.length} slides):
+SLIDES: [See all images above — in order]
 CAPTION: "${caption || 'Not provided'}"
 HASHTAGS: "${hashtags || 'Not provided'}"
 CREATOR CATEGORY: ${category || 'General'}
 
 Give a structured analysis with these exact sections:
 
-**🎠 Carousel Flow Analysis**
-Look at all slides carefully. Does the first slide stop the scroll? Is there a logical flow from slide to slide? Does it make the viewer want to swipe? Is the visual style consistent? Does the last slide have a clear CTA or conclusion?
+**🎠 Carousel Flow**
+Look at every slide. Does slide 1 stop the scroll? Is there a logical flow? Does it make you want to swipe? Does the last slide have a CTA? Be brutally honest slide by slide.
 
 **📐 Visual Consistency**
-Are the fonts, colors, and design consistent across slides? Does it look professionally designed or thrown together?
+Fonts, colors, design — consistent or all over the place? Does it look professional?
 
-**✍️ Caption Analysis**
-Does the caption complement the carousel? Is it setting up the content well? Does it encourage swiping?
+**✍️ Caption**
+Is the caption setting up the carousel well? Does it encourage swiping?
 
-**#️⃣ Hashtag Analysis**
-Are these hashtags relevant and well-mixed for the ${category || 'general'} niche in India?
+**#️⃣ Hashtags**
+Right hashtags for the ${category || 'general'} niche in India? What's missing?
 
 **📊 Overall Score**
-Score out of 10 and the single most important thing to fix.
+Score out of 10. One clear verdict.
 
-Be specific about what you see in each slide.`
+**💡 Suggested Improvements**
+Rewrite slide 1 text if it's weak. Write a better caption. Give exactly 10 better hashtags for the ${category || 'general'} niche in India. Give them something they can copy right now.`
+
     }
-
-    // Build messages array for Claude
-    const userContent = [
-      ...imageBlocks,
-      { type: 'text', text: analysisPrompt }
-    ]
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -129,7 +128,7 @@ Be specific about what you see in each slide.`
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 1500,
         messages: [
-          { role: 'user', content: userContent }
+          { role: 'user', content: [...imageBlocks, { type: 'text', text: analysisPrompt }] }
         ]
       })
     })
