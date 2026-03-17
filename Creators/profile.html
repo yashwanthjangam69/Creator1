@@ -11,19 +11,16 @@
 
 <style>
 
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-}
+*{ margin:0; padding:0; box-sizing:border-box; }
 
 :root{
   --bg: #f0f5fb;
   --white: #ffffff;
   --blue: #2f6bcd;
+  --blue-light: #e8f0fc;
   --blue-mid: #b8cef5;
   --text: #1a2540;
-  --muted: #7b90b8;
+  --muted: #0b487f;
   --border: #dce8f8;
   --error: #e05c5c;
   --success: #2e9e6b;
@@ -46,10 +43,8 @@ body{
 body::before{
   content:'';
   position:fixed;
-  top:-100px;
-  right:-100px;
-  width:500px;
-  height:500px;
+  top:-100px; right:-100px;
+  width:500px; height:500px;
   background: radial-gradient(circle, rgba(47,107,205,0.08) 0%, transparent 70%);
   pointer-events:none;
 }
@@ -57,19 +52,15 @@ body::before{
 body::after{
   content:'';
   position:fixed;
-  bottom:-120px;
-  left:-80px;
-  width:400px;
-  height:400px;
+  bottom:-120px; left:-80px;
+  width:400px; height:400px;
   background: radial-gradient(circle, rgba(47,107,205,0.06) 0%, transparent 70%);
   pointer-events:none;
 }
 
 .wrapper{
-  width:100%;
-  max-width:420px;
-  position:relative;
-  z-index:1;
+  width:100%; max-width:420px;
+  position:relative; z-index:1;
   animation: fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both;
 }
 
@@ -78,271 +69,139 @@ body::after{
   to{ opacity:1; transform:translateY(0); }
 }
 
-/* Brand */
-.brand{
-  text-align:center;
-  margin-bottom:32px;
-}
+.brand{ text-align:center; margin-bottom:32px; }
 
 .logo{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:52px;
-  height:52px;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:52px; height:52px;
   background: linear-gradient(135deg, var(--blue), #5b9cf6);
-  border-radius:14px;
-  margin-bottom:18px;
+  border-radius:14px; margin-bottom:18px;
   box-shadow: 0 8px 24px rgba(47,107,205,0.25);
 }
 
-.logo svg{
-  width:26px;
-  height:26px;
-  fill:white;
-}
+.logo svg{ width:26px; height:26px; fill:white; }
 
 .brand h1{
   font-family:'Playfair Display', serif;
-  font-size:24px;
-  font-weight:600;
-  color:var(--text);
-  letter-spacing:-0.01em;
+  font-size:24px; font-weight:600;
+  color:var(--text); letter-spacing:-0.01em;
 }
 
-.brand p{
-  color:var(--muted);
-  font-size:14px;
-  margin-top:8px;
-  font-weight:300;
-  line-height:1.5;
-}
+.brand p{ color:var(--muted); font-size:14px; margin-top:8px; font-weight:300; line-height:1.5; }
 
-/* Step indicator */
 .steps{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  margin-bottom:28px;
+  display:flex; align-items:center; justify-content:center;
+  gap:8px; margin-bottom:28px;
 }
 
 .step{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-size:12px;
-  font-weight:500;
-  color:var(--muted);
+  display:flex; align-items:center; gap:6px;
+  font-size:12px; font-weight:500; color:var(--muted);
 }
 
 .step-dot{
-  width:24px;
-  height:24px;
-  border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:11px;
-  font-weight:600;
+  width:24px; height:24px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:600;
   border: 1.5px solid var(--border);
-  background: var(--white);
-  color: var(--muted);
+  background: var(--white); color: var(--muted);
 }
 
-.step.done .step-dot{
-  background: #e8f5ee;
-  border-color: #b6e8d2;
-  color: var(--success);
-}
+.step.done .step-dot{ background:#e8f5ee; border-color:#b6e8d2; color:var(--success); }
+.step.active .step-dot{ background: linear-gradient(135deg, var(--blue), #5b9cf6); border-color:transparent; color:white; }
+.step.active{ color:var(--text); font-weight:500; }
+.step-line{ width:32px; height:1.5px; background:var(--border); }
 
-.step.active .step-dot{
-  background: linear-gradient(135deg, var(--blue), #5b9cf6);
-  border-color: transparent;
-  color: white;
-}
-
-.step.active{
-  color: var(--text);
-  font-weight:500;
-}
-
-.step-line{
-  width:32px;
-  height:1.5px;
-  background: var(--border);
-}
-
-/* Card */
 .card{
-  background:var(--white);
-  border:1px solid var(--border);
-  border-radius:20px;
-  padding:32px 28px;
+  background:var(--white); border:1px solid var(--border);
+  border-radius:20px; padding:32px 28px;
   box-shadow: 0 4px 24px rgba(47,107,205,0.08);
 }
 
-.form-group{
-  margin-bottom:18px;
-}
+.form-group{ margin-bottom:18px; }
 
 label{
-  display:block;
-  font-size:11px;
-  font-weight:500;
-  letter-spacing:0.06em;
-  text-transform:uppercase;
-  color:var(--muted);
-  margin-bottom:7px;
+  display:block; font-size:11px; font-weight:500;
+  letter-spacing:0.06em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:7px;
 }
 
-.input-wrap{
-  position:relative;
-}
+.input-wrap{ position:relative; }
 
 .input-prefix{
-  position:absolute;
-  left:14px;
-  top:50%;
+  position:absolute; left:14px; top:50%;
   transform:translateY(-50%);
-  color:var(--muted);
-  font-size:15px;
-  pointer-events:none;
+  color:var(--muted); font-size:15px; pointer-events:none;
 }
 
 input{
-  width:100%;
-  padding:13px 15px;
-  background:var(--bg);
-  border:1.5px solid var(--border);
-  border-radius:10px;
-  color:var(--text);
-  font-family:'Inter', sans-serif;
-  font-size:15px;
+  width:100%; padding:13px 15px;
+  background:var(--bg); border:1.5px solid var(--border);
+  border-radius:10px; color:var(--text);
+  font-family:'Inter',sans-serif; font-size:15px;
   outline:none;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-input.has-prefix{
-  padding-left:34px;
-}
+input.has-prefix{ padding-left:34px; }
 
 input:focus{
-  border-color:var(--blue-mid);
-  background:white;
+  border-color:var(--blue-mid); background:white;
   box-shadow:0 0 0 4px rgba(47,107,205,0.08);
 }
 
-input::placeholder{
-  color:#b0c0d8;
-}
+input::placeholder{ color:#b0c0d8; }
 
-/* Category grid */
 .category-grid{
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap:10px;
-  margin-top:2px;
+  display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:2px;
 }
 
 .cat-option{
   padding:11px 14px;
-  background:var(--bg);
-  border:1.5px solid var(--border);
-  border-radius:10px;
-  font-family:'Inter', sans-serif;
-  font-size:13px;
-  font-weight:400;
-  color:var(--muted);
-  cursor:pointer;
-  text-align:center;
-  transition: all 0.2s;
-  user-select:none;
+  background:var(--bg); border:1.5px solid var(--border);
+  border-radius:10px; font-family:'Inter',sans-serif;
+  font-size:13px; font-weight:400; color:var(--muted);
+  cursor:pointer; text-align:center; transition:all 0.2s; user-select:none;
 }
 
-.cat-option:hover{
-  border-color:var(--blue-mid);
-  color:var(--blue);
-  background:white;
-}
+.cat-option:hover{ border-color:var(--blue-mid); color:var(--blue); background:white; }
 
 .cat-option.selected{
   background: linear-gradient(135deg, rgba(47,107,205,0.08), rgba(91,156,246,0.08));
-  border-color:var(--blue-mid);
-  color:var(--blue);
-  font-weight:500;
+  border-color:var(--blue-mid); color:var(--blue); font-weight:500;
 }
 
 .btn{
-  width:100%;
-  padding:14px;
-  margin-top:24px;
+  width:100%; padding:14px; margin-top:24px;
   background: linear-gradient(135deg, var(--blue), #5b9cf6);
-  color:white;
-  border:none;
-  border-radius:10px;
-  font-family:'Inter', sans-serif;
-  font-size:14px;
-  font-weight:500;
-  letter-spacing:0.02em;
-  cursor:pointer;
+  color:white; border:none; border-radius:10px;
+  font-family:'Inter',sans-serif; font-size:14px; font-weight:500;
+  letter-spacing:0.02em; cursor:pointer;
   transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
   box-shadow: 0 4px 14px rgba(47,107,205,0.3);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:48px;
+  display:flex; align-items:center; justify-content:center; min-height:48px;
 }
 
-.btn:hover{
-  opacity:0.92;
-  transform:translateY(-1px);
-  box-shadow: 0 6px 20px rgba(47,107,205,0.35);
-}
-
+.btn:hover{ opacity:0.92; transform:translateY(-1px); box-shadow:0 6px 20px rgba(47,107,205,0.35); }
 .btn:active{ transform:translateY(0); }
-
-.btn:disabled{
-  opacity:0.6;
-  cursor:not-allowed;
-  transform:none;
-}
+.btn:disabled{ opacity:0.6; cursor:not-allowed; transform:none; }
 
 .btn-loader{
-  display:none;
-  width:16px;
-  height:16px;
+  display:none; width:16px; height:16px;
   border:2px solid rgba(255,255,255,0.35);
-  border-top-color:white;
-  border-radius:50%;
+  border-top-color:white; border-radius:50%;
   animation:spin 0.65s linear infinite;
 }
 
 @keyframes spin{ to{ transform:rotate(360deg); } }
 
 .msg{
-  display:none;
-  padding:12px 15px;
-  border-radius:10px;
-  font-size:13px;
-  margin-top:16px;
-  text-align:center;
-  line-height:1.4;
+  display:none; padding:12px 15px; border-radius:10px;
+  font-size:13px; margin-top:16px; text-align:center; line-height:1.4;
 }
 
-.msg.error{
-  background:#fef2f2;
-  border:1px solid #fcd6d6;
-  color:var(--error);
-  display:block;
-}
-
-.msg.success{
-  background:#f0faf6;
-  border:1px solid #b6e8d2;
-  color:var(--success);
-  display:block;
-}
+.msg.error{ background:#fef2f2; border:1px solid #fcd6d6; color:var(--error); display:block; }
+.msg.success{ background:#f0faf6; border:1px solid #b6e8d2; color:var(--success); display:block; }
 
 </style>
 </head>
@@ -361,7 +220,6 @@ input::placeholder{
     <p>Just a few details to get you started.</p>
   </div>
 
-  <!-- Step indicator -->
   <div class="steps">
     <div class="step done">
       <div class="step-dot">✓</div>
@@ -397,16 +255,16 @@ input::placeholder{
     <div class="form-group">
       <label>Content Category</label>
       <div class="category-grid" id="categoryGrid">
-        <div class="cat-option" onclick="selectCategory(this, 'Beauty')">💄 Beauty</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Fashion')">👗 Fashion</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Fitness')">💪 Fitness</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Food')">🍜 Food</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Travel')">✈️ Travel</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Education')">📚 Education</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Technology')">💻 Technology</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Finance')">📈 Finance</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Lifestyle')">🌿 Lifestyle</div>
-        <div class="cat-option" onclick="selectCategory(this, 'Entertainment')">🎬 Entertainment</div>
+        <div class="cat-option" onclick="selectCategory(this,'Beauty')">💄 Beauty</div>
+        <div class="cat-option" onclick="selectCategory(this,'Fashion')">👗 Fashion</div>
+        <div class="cat-option" onclick="selectCategory(this,'Fitness')">💪 Fitness</div>
+        <div class="cat-option" onclick="selectCategory(this,'Food')">🍜 Food</div>
+        <div class="cat-option" onclick="selectCategory(this,'Travel')">✈️ Travel</div>
+        <div class="cat-option" onclick="selectCategory(this,'Education')">📚 Education</div>
+        <div class="cat-option" onclick="selectCategory(this,'Technology')">💻 Technology</div>
+        <div class="cat-option" onclick="selectCategory(this,'Finance')">📈 Finance</div>
+        <div class="cat-option" onclick="selectCategory(this,'Lifestyle')">🌿 Lifestyle</div>
+        <div class="cat-option" onclick="selectCategory(this,'Entertainment')">🎬 Entertainment</div>
       </div>
     </div>
 
@@ -425,12 +283,10 @@ input::placeholder{
 
 let selectedCategory = null
 
-// Redirect if not logged in
 async function checkAuth(){
   const { data } = await client.auth.getSession()
   if(!data.session) window.location = 'index.html'
 
-  // Pre-fill if profile already exists
   const user = data.session.user
   const { data: profile } = await client
     .from('profiles')
@@ -496,14 +352,19 @@ async function saveProfile(){
       created_at: new Date().toISOString()
     }, { onConflict: 'id' })
 
-  setLoading(false)
+  if(error){
+    setLoading(false)
+    showMsg(error.message, 'error')
+    return
+  }
 
- if(error){
-   showMsg(error.message, 'error')
- } else {
-   showMsg('✓ Profile saved!', 'success')
-   setTimeout(() => window.location = 'dashboard.html', 1000)
- }
+  showMsg('✓ Profile saved! Taking you to your dashboard...', 'success')
+
+  // Fire scrape in background — do NOT await, just trigger and move on
+  fetch(`/api/scrape?user_id=${user.id}&username=${instagram}`).catch(() => {})
+
+  // Redirect immediately
+  setTimeout(() => window.location = 'dashboard.html', 800)
 }
 
 checkAuth()
