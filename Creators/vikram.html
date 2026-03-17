@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Vikram — Creator Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="metrics.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+:root{
+  --bg:#f0f5fb;
+  --white:#ffffff;
+  --blue:#2f6bcd;
+  --blue-deep:#0b487f;
+  --blue-light:#e8f0fc;
+  --blue-mid:#b8cef5;
+  --text:#1a2540;
+  --muted:#0b487f;
+  --border:#dce8f8;
+}
+
+html, body{
+  height: 100%;
+  overflow: hidden;
+}
+
+body{
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Nav */
+.nav{
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.nav-back{
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+  color: var(--muted);
+  line-height: 1;
+  padding: 2px 6px 2px 0;
+}
+
+.vikram-avatar{
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(47,107,205,0.25);
+}
+
+.nav-name{
+  font-family: 'Playfair Display', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.2;
+}
+
+.nav-sub{
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 1px;
+}
+
+.online-dot{
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2e9e6b;
+}
+
+/* Chat scroll area */
+.chat-scroll{
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.chat-scroll::-webkit-scrollbar{ width: 0; }
+
+.chat-inner{
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Loading */
+.loading-wrap{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 14px;
+}
+
+.spinner{
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--blue-light);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin{ to{ transform: rotate(360deg); } }
+
+.loading-title{ font-family:'Playfair Display',serif; font-size:16px; color:var(--text); }
+.loading-sub{ font-size:12px; color:var(--muted); }
+
+/* Messages */
+.msg{
+  display: flex;
+  gap: 8px;
+  animation: msgIn 0.25s ease both;
+}
+
+@keyframes msgIn{
+  from{ opacity:0; transform:translateY(6px); }
+  to{ opacity:1; transform:translateY(0); }
+}
+
+.msg.user{ flex-direction: row-reverse; }
+
+.msg-av{
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  font-size: 13px;
+}
+
+.msg-av.vikram{
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue));
+  font-size: 14px;
+}
+
+.msg-av.user{
+  background: var(--blue-light);
+  color: var(--blue-deep);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.bubble{
+  max-width: 78%;
+  padding: 11px 15px;
+  font-size: 14px;
+  line-height: 1.65;
+  border-radius: 16px;
+}
+
+.msg.vikram .bubble{
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-top-left-radius: 4px;
+  color: var(--text);
+  box-shadow: 0 2px 8px rgba(47,107,205,0.05);
+}
+
+.msg.user .bubble{
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue));
+  color: white;
+  border-top-right-radius: 4px;
+}
+
+/* Typing */
+.typing-wrap{
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.typing-bubble{
+  padding: 12px 15px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  border-top-left-radius: 4px;
+  display: flex;
+  gap: 4px;
+}
+
+.t-dot{
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--blue-mid);
+  animation: bounce 1.2s ease-in-out infinite;
+}
+
+.t-dot:nth-child(2){ animation-delay:0.2s; }
+.t-dot:nth-child(3){ animation-delay:0.4s; }
+
+@keyframes bounce{
+  0%,60%,100%{ transform:translateY(0); }
+  30%{ transform:translateY(-5px); }
+}
+
+/* Quick prompts */
+.prompts-wrap{
+  padding-left: 38px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  animation: msgIn 0.3s 0.2s ease both;
+  opacity: 0;
+  animation-fill-mode: both;
+}
+
+.prompt-btn{
+  background: var(--blue-light);
+  border: 1px solid var(--blue-mid);
+  border-radius: 18px;
+  padding: 8px 15px;
+  font-size: 13px;
+  color: var(--blue-deep);
+  cursor: pointer;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  transition: all 0.18s;
+  line-height: 1.4;
+}
+
+.prompt-btn:hover{
+  background: var(--blue);
+  color: white;
+  border-color: var(--blue);
+}
+
+/* Input */
+.input-area{
+  flex-shrink: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px 16px;
+}
+
+.input-inner{
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+textarea{
+  flex: 1;
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: 13px;
+  padding: 11px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  resize: none;
+  min-height: 46px;
+  max-height: 110px;
+  line-height: 1.5;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+textarea:focus{
+  border-color: var(--blue-mid);
+  box-shadow: 0 0 0 3px rgba(47,107,205,0.08);
+  background: white;
+}
+
+textarea::placeholder{ color: #b0c0d8; }
+
+.send{
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--blue-deep), var(--blue));
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(47,107,205,0.3);
+  transition: opacity 0.2s, transform 0.15s;
+}
+
+.send:hover{ opacity:0.9; transform:translateY(-1px); }
+.send:active{ transform:translateY(0); }
+.send:disabled{ opacity:0.45; cursor:not-allowed; transform:none; }
+
+.send svg{ width:17px; height:17px; fill:white; }
+
+</style>
+</head>
+
+<body>
+
+<div class="nav">
+  <button class="nav-back" onclick="window.location='dashboard.html'">←</button>
+  <div class="vikram-avatar">🤖</div>
+  <div>
+    <div class="nav-name">Vikram</div>
+    <div class="nav-sub"><div class="online-dot"></div> Your Brand Manager</div>
+  </div>
+</div>
+
+<div class="chat-scroll" id="chatScroll">
+  <div class="chat-inner" id="chatInner">
+    <div class="loading-wrap" id="loadingWrap">
+      <div class="spinner"></div>
+      <div class="loading-title">Vikram is reviewing your profile</div>
+      <div class="loading-sub">Just a second...</div>
+    </div>
+  </div>
+</div>
+
+<div class="input-area">
+  <div class="input-inner">
+    <textarea
+      id="inputBox"
+      placeholder="Ask Vikram anything..."
+      rows="1"
+      disabled
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this)"
+    ></textarea>
+    <button class="send" id="sendBtn" onclick="sendMessage()" disabled>
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+</div>
+
+<script>
+
+let history = []
+let systemPrompt = ''
+let userInitial = '?'
+let promptsShown = false
+
+async function init(){
+  const { data: sd } = await client.auth.getSession()
+  if(!sd.session){ window.location='index.html'; return }
+
+  const user = sd.session.user
+
+  const { data: profile } = await client
+    .from('profiles')
+    .select('name, instagram, category')
+    .eq('id', user.id)
+    .single()
+
+  if(!profile){ window.location='dashboard.html'; return }
+
+  userInitial = profile.name ? profile.name.charAt(0).toUpperCase() : '?'
+
+  const { data: snapshot } = await client
+    .from('profile_snapshots')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('scraped_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  const metrics = await getMetrics(user.id)
+
+  systemPrompt = buildSystemPrompt(profile, snapshot, metrics)
+
+  await loadOpening(profile, snapshot, metrics)
+
+  document.getElementById('inputBox').disabled = false
+  document.getElementById('sendBtn').disabled = false
+  document.getElementById('inputBox').focus()
+}
+
+function buildSystemPrompt(profile, snap, metrics){
+  const postsCtx = metrics?.posts?.map((p, i) =>
+    `Post ${i+1} [${p.type}] ${p.likes_count} likes, ${p.comments_count} comments${p.video_view_count ? `, ${p.video_view_count} views` : ''} — "${(p.caption||'').substring(0,120)}" — hashtags: ${(p.hashtags||[]).slice(0,5).join(' ')}`
+  ).join('\n') || 'No posts available'
+
+  return `You are Vikram — a sharp AI brand manager for Instagram creators. You talk like a chill CEO who's been in the game for years. Confident, direct, no fluff, genuinely believe in the creator but tell them the truth. Short punchy responses — under 100 words unless they ask for something detailed. Talk like a real person, not a chatbot. Never use bullet points. Use the creator's actual data in every response. You're category-aware — you only give advice relevant to the ${profile.category || 'creator'} space. You know Instagram psychology, hooks, algorithm signals, and what actually works in ${new Date().getFullYear()}.
+
+CREATOR:
+Name: ${profile.name || 'Unknown'}
+Handle: @${profile.instagram || 'Unknown'}
+Category: ${profile.category || 'Unknown'}
+
+INSTAGRAM PROFILE:
+Followers: ${snap?.followers_count?.toLocaleString() || 0}
+Following: ${snap?.following_count?.toLocaleString() || 0}
+Total Posts: ${snap?.posts_count || 0}
+Bio: ${snap?.biography || 'Not set'}
+Verified: ${snap?.is_verified ? 'Yes' : 'No'}
+Business Account: ${snap?.is_business_account ? 'Yes' : 'No'}
+External Link: ${snap?.external_url || 'None'}
+
+PERFORMANCE METRICS (last ${metrics?.totalPostsAnalyzed || 0} posts):
+Engagement Rate: ${metrics?.engagementRate || 0}%
+Avg Likes: ${metrics?.avgLikes || 0}
+Avg Comments: ${metrics?.avgComments || 0}
+Avg Video Views: ${metrics?.avgVideoViews || 0}
+Reach Rate: ${metrics?.reachRate || 0}% (views vs followers)
+Like-to-View: ${metrics?.likeToViewRatio || 0}%
+Comment-to-View: ${metrics?.commentToViewRatio || 0}%
+Posts Per Week: ${metrics?.postsPerWeek || 0}
+Best Day to Post: ${metrics?.bestDay || 'Unknown'}
+Best Content Type: ${metrics?.bestPostType || 'Unknown'}
+Top Hashtags: ${metrics?.topHashtags?.map(h => '#'+h.tag).join(', ') || 'None'}
+
+RECENT POSTS:
+${postsCtx}
+
+Never say "Great question!" or "Certainly!". Be real. Be specific. Reference their actual numbers.`
+}
+
+async function loadOpening(profile, snap, metrics){
+  const firstName = profile.name?.split(' ')[0] || 'hey'
+
+  const openingMsg = `Write a short opening message to ${firstName}. You've just reviewed their Instagram. Reference 1 specific thing from their data — pick the most interesting insight. Be direct and confident like a chill CEO. End with one specific question to get the conversation going. Max 3 sentences total.`
+
+  const reply = await callVikram([{ role:'user', content: openingMsg }], true)
+
+  document.getElementById('loadingWrap').remove()
+
+  addMessage('vikram', reply)
+  showPrompts(profile.category)
+}
+
+function showPrompts(category){
+  if(promptsShown) return
+  promptsShown = true
+
+  const cat = (category||'').toLowerCase()
+  let prompts = []
+
+  if(cat.includes('beauty') || cat.includes('fashion')){
+    prompts = ["Why aren't my reels blowing up?", "How do I get brand collaborations?", "What should I post this week?"]
+  } else if(cat.includes('fitness')){
+    prompts = ["How do I grow faster in fitness?", "What content is working right now?", "Am I posting enough?"]
+  } else if(cat.includes('food')){
+    prompts = ["Reels or carousels — what should I focus on?", "How do I increase comments?", "What food content goes viral?"]
+  } else if(cat.includes('education') || cat.includes('tech')){
+    prompts = ["What content format works best for me?", "How do I make my reels more shareable?", "Am I using hashtags right?"]
+  } else if(cat.includes('finance')){
+    prompts = ["How do I grow in the finance niche?", "How do I convert followers to clients?", "What topics are trending?"]
+  } else if(cat.includes('travel')){
+    prompts = ["What's working best for travel creators?", "How do I grow my reach?", "Am I posting at the right time?"]
+  } else if(cat.includes('lifestyle')){
+    prompts = ["What kind of content should I double down on?", "How do I increase my engagement rate?", "What's holding my growth back?"]
+  } else {
+    prompts = ["How's my engagement doing?", "What should I post more of?", "Why aren't my reels getting more views?"]
+  }
+
+  const wrap = document.createElement('div')
+  wrap.className = 'prompts-wrap'
+  wrap.id = 'promptsWrap'
+
+  prompts.forEach(p => {
+    const btn = document.createElement('button')
+    btn.className = 'prompt-btn'
+    btn.textContent = p
+    btn.onclick = () => {
+      document.getElementById('promptsWrap')?.remove()
+      handleUserMessage(p)
+    }
+    wrap.appendChild(btn)
+  })
+
+  document.getElementById('chatInner').appendChild(wrap)
+  scrollDown()
+}
+
+async function sendMessage(){
+  const box = document.getElementById('inputBox')
+  const text = box.value.trim()
+  if(!text) return
+  box.value = ''
+  box.style.height = 'auto'
+  document.getElementById('promptsWrap')?.remove()
+  await handleUserMessage(text)
+}
+
+async function handleUserMessage(text){
+  addMessage('user', text)
+  history.push({ role:'user', content: text })
+
+  setInputEnabled(false)
+  const tid = showTyping()
+
+  const reply = await callVikram(history)
+
+  document.getElementById(tid)?.remove()
+  addMessage('vikram', reply)
+  history.push({ role:'assistant', content: reply })
+
+  setInputEnabled(true)
+  document.getElementById('inputBox').focus()
+}
+
+async function callVikram(messages, isOpening = false){
+  try {
+    const res = await fetch('/api/vikram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ systemPrompt, messages })
+    })
+    if(!res.ok) return "Something went wrong on my end. Try again."
+    const data = await res.json()
+    return data.reply || "Hmm, try again."
+  } catch(e) {
+    return "Connection issue. Check your internet."
+  }
+}
+
+function addMessage(role, text){
+  const inner = document.getElementById('chatInner')
+
+  const msg = document.createElement('div')
+  msg.className = `msg ${role}`
+
+  const av = document.createElement('div')
+  av.className = `msg-av ${role}`
+  av.textContent = role === 'vikram' ? '🤖' : userInitial
+
+  const bubble = document.createElement('div')
+  bubble.className = 'bubble'
+  bubble.textContent = text
+
+  msg.appendChild(av)
+  msg.appendChild(bubble)
+  inner.appendChild(msg)
+  scrollDown()
+}
+
+function showTyping(){
+  const id = 'typing-' + Date.now()
+  const inner = document.getElementById('chatInner')
+
+  const wrap = document.createElement('div')
+  wrap.className = 'typing-wrap'
+  wrap.id = id
+
+  const av = document.createElement('div')
+  av.className = 'msg-av vikram'
+  av.textContent = '🤖'
+
+  const bubble = document.createElement('div')
+  bubble.className = 'typing-bubble'
+  bubble.innerHTML = '<div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>'
+
+  wrap.appendChild(av)
+  wrap.appendChild(bubble)
+  inner.appendChild(wrap)
+  scrollDown()
+  return id
+}
+
+function setInputEnabled(enabled){
+  document.getElementById('inputBox').disabled = !enabled
+  document.getElementById('sendBtn').disabled = !enabled
+}
+
+function scrollDown(){
+  const el = document.getElementById('chatScroll')
+  el.scrollTop = el.scrollHeight
+}
+
+function handleKey(e){
+  if(e.key === 'Enter' && !e.shiftKey){
+    e.preventDefault()
+    sendMessage()
+  }
+}
+
+function autoResize(el){
+  el.style.height = 'auto'
+  el.style.height = Math.min(el.scrollHeight, 110) + 'px'
+}
+
+init()
+
+</script>
+
+</body>
+</html>
