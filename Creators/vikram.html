@@ -558,7 +558,9 @@ function addMessage(role, text){
 
   const bubble = document.createElement('div')
   bubble.className = 'bubble'
-  bubble.textContent = text
+  bubble.innerHTML = text
+  .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+  .replace(/\n/g, '<br>')
 
   msg.appendChild(av)
   msg.appendChild(bubble)
