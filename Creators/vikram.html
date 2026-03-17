@@ -26,10 +26,7 @@
   --border:#dce8f8;
 }
 
-html, body{
-  height: 100%;
-  overflow: hidden;
-}
+html, body{ height:100%; overflow:hidden; }
 
 body{
   font-family: 'DM Sans', sans-serif;
@@ -39,7 +36,6 @@ body{
   flex-direction: column;
 }
 
-/* Nav */
 .nav{
   display: flex;
   align-items: center;
@@ -97,14 +93,13 @@ body{
   background: #2e9e6b;
 }
 
-/* Chat scroll area */
 .chat-scroll{
   flex: 1;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.chat-scroll::-webkit-scrollbar{ width: 0; }
+.chat-scroll::-webkit-scrollbar{ width:0; }
 
 .chat-inner{
   max-width: 480px;
@@ -115,7 +110,6 @@ body{
   gap: 14px;
 }
 
-/* Loading */
 .loading-wrap{
   display: flex;
   flex-direction: column;
@@ -134,12 +128,11 @@ body{
   animation: spin 0.8s linear infinite;
 }
 
-@keyframes spin{ to{ transform: rotate(360deg); } }
+@keyframes spin{ to{ transform:rotate(360deg); } }
 
 .loading-title{ font-family:'Playfair Display',serif; font-size:16px; color:var(--text); }
 .loading-sub{ font-size:12px; color:var(--muted); }
 
-/* Messages */
 .msg{
   display: flex;
   gap: 8px;
@@ -151,7 +144,7 @@ body{
   to{ opacity:1; transform:translateY(0); }
 }
 
-.msg.user{ flex-direction: row-reverse; }
+.msg.user{ flex-direction:row-reverse; }
 
 .msg-av{
   width: 30px;
@@ -199,7 +192,6 @@ body{
   border-top-right-radius: 4px;
 }
 
-/* Typing */
 .typing-wrap{
   display: flex;
   gap: 8px;
@@ -232,7 +224,6 @@ body{
   30%{ transform:translateY(-5px); }
 }
 
-/* Quick prompts */
 .prompts-wrap{
   padding-left: 38px;
   display: flex;
@@ -264,7 +255,6 @@ body{
   border-color: var(--blue);
 }
 
-/* Input */
 .input-area{
   flex-shrink: 0;
   background: var(--white);
@@ -303,7 +293,7 @@ textarea:focus{
   background: white;
 }
 
-textarea::placeholder{ color: #b0c0d8; }
+textarea::placeholder{ color:#b0c0d8; }
 
 .send{
   width: 46px;
@@ -336,7 +326,7 @@ textarea::placeholder{ color: #b0c0d8; }
   <div class="vikram-avatar">🤖</div>
   <div>
     <div class="nav-name">Vikram</div>
-    <div class="nav-sub"><div class="online-dot"></div> Your Brand Manager</div>
+    <div class="nav-sub"><div class="online-dot"></div> Instagram Growth Strategist</div>
   </div>
 </div>
 
@@ -401,7 +391,7 @@ async function init(){
 
   systemPrompt = buildSystemPrompt(profile, snapshot, metrics)
 
-  await loadOpening(profile, snapshot, metrics)
+  await loadOpening(profile)
 
   document.getElementById('inputBox').disabled = false
   document.getElementById('sendBtn').disabled = false
@@ -409,18 +399,30 @@ async function init(){
 }
 
 function buildSystemPrompt(profile, snap, metrics){
+
   const postsCtx = metrics?.posts?.map((p, i) =>
-    `Post ${i+1} [${p.type}] ${p.likes_count} likes, ${p.comments_count} comments${p.video_view_count ? `, ${p.video_view_count} views` : ''} — "${(p.caption||'').substring(0,120)}" — hashtags: ${(p.hashtags||[]).slice(0,5).join(' ')}`
+    `Post ${i+1} [${p.type}] ${p.likes_count} likes, ${p.comments_count} comments${p.video_view_count ? `, ${p.video_view_count} views` : ''} — Caption: "${(p.caption||'').substring(0, 120)}" — Tags: ${(p.hashtags||[]).slice(0,5).join(' ')}`
   ).join('\n') || 'No posts available'
 
-  return `You are Vikram — a sharp AI brand manager for Instagram creators. You talk like a chill CEO who's been in the game for years. Confident, direct, no fluff, genuinely believe in the creator but tell them the truth. Short punchy responses — under 100 words unless they ask for something detailed. Talk like a real person, not a chatbot. Never use bullet points. Use the creator's actual data in every response. You're category-aware — you only give advice relevant to the ${profile.category || 'creator'} space. You know Instagram psychology, hooks, algorithm signals, and what actually works in ${new Date().getFullYear()}.
+  return `You are Vikram — the world's best Instagram growth strategist. You've helped thousands of creators go from invisible to influential. You see patterns in data that others miss and you know exactly what the algorithm rewards in ${new Date().getFullYear()}. You speak with quiet confidence — no hype, no fluff, no motivational filler. Just sharp, specific insights that actually move the needle.
 
-CREATOR:
+When you reference data, you interpret it — don't just recite numbers. Give one clear insight or recommendation at a time. Be direct and conversational. Sound like the smartest person in the room who doesn't need to prove it.
+
+You are category-aware. You only give advice relevant to the ${profile.category || 'creator'} space. You understand the psychology of audiences in this niche — what makes them follow, share, comment and trust a creator.
+
+Hard rules:
+- Never say "Yo", "Bro", "Great question", "Certainly", "Absolutely" or anything that sounds like a hype man or a customer service bot
+- Never use bullet points — talk like a real person
+- Keep responses under 90 words unless the creator asks for something detailed
+- Always interpret data, never just repeat it back
+- Be honest even if it's uncomfortable — sugarcoating helps nobody
+
+CREATOR PROFILE:
 Name: ${profile.name || 'Unknown'}
 Handle: @${profile.instagram || 'Unknown'}
 Category: ${profile.category || 'Unknown'}
 
-INSTAGRAM PROFILE:
+INSTAGRAM DATA:
 Followers: ${snap?.followers_count?.toLocaleString() || 0}
 Following: ${snap?.following_count?.toLocaleString() || 0}
 Total Posts: ${snap?.posts_count || 0}
@@ -429,34 +431,31 @@ Verified: ${snap?.is_verified ? 'Yes' : 'No'}
 Business Account: ${snap?.is_business_account ? 'Yes' : 'No'}
 External Link: ${snap?.external_url || 'None'}
 
-PERFORMANCE METRICS (last ${metrics?.totalPostsAnalyzed || 0} posts):
+PERFORMANCE (last ${metrics?.totalPostsAnalyzed || 0} posts):
 Engagement Rate: ${metrics?.engagementRate || 0}%
 Avg Likes: ${metrics?.avgLikes || 0}
 Avg Comments: ${metrics?.avgComments || 0}
 Avg Video Views: ${metrics?.avgVideoViews || 0}
 Reach Rate: ${metrics?.reachRate || 0}% (views vs followers)
-Like-to-View: ${metrics?.likeToViewRatio || 0}%
-Comment-to-View: ${metrics?.commentToViewRatio || 0}%
+Like-to-View Ratio: ${metrics?.likeToViewRatio || 0}%
+Comment-to-View Ratio: ${metrics?.commentToViewRatio || 0}%
 Posts Per Week: ${metrics?.postsPerWeek || 0}
 Best Day to Post: ${metrics?.bestDay || 'Unknown'}
 Best Content Type: ${metrics?.bestPostType || 'Unknown'}
 Top Hashtags: ${metrics?.topHashtags?.map(h => '#'+h.tag).join(', ') || 'None'}
 
 RECENT POSTS:
-${postsCtx}
-
-Never say "Great question!" or "Certainly!". Be real. Be specific. Reference their actual numbers.`
+${postsCtx}`
 }
 
-async function loadOpening(profile, snap, metrics){
-  const firstName = profile.name?.split(' ')[0] || 'hey'
+async function loadOpening(profile){
+  const firstName = profile.name?.split(' ')[0] || 'there'
 
-  const openingMsg = `Write a short opening message to ${firstName}. You've just reviewed their Instagram. Reference 1 specific thing from their data — pick the most interesting insight. Be direct and confident like a chill CEO. End with one specific question to get the conversation going. Max 3 sentences total.`
+  const openingMsg = `Write your opening message to ${firstName}. You've just reviewed their Instagram profile and data. Pick the single most interesting or concerning thing you noticed — something specific from their actual numbers or content. Lead with that insight directly. End with one focused question. Do not introduce yourself. Max 2-3 sentences.`
 
-  const reply = await callVikram([{ role:'user', content: openingMsg }], true)
+  const reply = await callVikram([{ role:'user', content: openingMsg }])
 
   document.getElementById('loadingWrap').remove()
-
   addMessage('vikram', reply)
   showPrompts(profile.category)
 }
@@ -469,21 +468,21 @@ function showPrompts(category){
   let prompts = []
 
   if(cat.includes('beauty') || cat.includes('fashion')){
-    prompts = ["Why aren't my reels blowing up?", "How do I get brand collaborations?", "What should I post this week?"]
+    prompts = ["Why aren't my reels getting views?", "How do I attract brand deals?", "What should I post this week?"]
   } else if(cat.includes('fitness')){
     prompts = ["How do I grow faster in fitness?", "What content is working right now?", "Am I posting enough?"]
   } else if(cat.includes('food')){
-    prompts = ["Reels or carousels — what should I focus on?", "How do I increase comments?", "What food content goes viral?"]
+    prompts = ["Reels or carousels — what should I focus on?", "How do I get more comments?", "What food content goes viral?"]
   } else if(cat.includes('education') || cat.includes('tech')){
     prompts = ["What content format works best for me?", "How do I make my reels more shareable?", "Am I using hashtags right?"]
   } else if(cat.includes('finance')){
-    prompts = ["How do I grow in the finance niche?", "How do I convert followers to clients?", "What topics are trending?"]
+    prompts = ["How do I grow in the finance niche?", "How do I convert followers to clients?", "What topics are working right now?"]
   } else if(cat.includes('travel')){
-    prompts = ["What's working best for travel creators?", "How do I grow my reach?", "Am I posting at the right time?"]
+    prompts = ["What's working best for travel creators?", "How do I grow my reach beyond followers?", "Am I posting at the right time?"]
   } else if(cat.includes('lifestyle')){
-    prompts = ["What kind of content should I double down on?", "How do I increase my engagement rate?", "What's holding my growth back?"]
+    prompts = ["What content should I double down on?", "How do I increase my engagement rate?", "What's holding my growth back?"]
   } else {
-    prompts = ["How's my engagement doing?", "What should I post more of?", "Why aren't my reels getting more views?"]
+    prompts = ["How's my engagement really doing?", "What should I be posting more of?", "Why aren't my reels getting more views?"]
   }
 
   const wrap = document.createElement('div')
@@ -532,16 +531,16 @@ async function handleUserMessage(text){
   document.getElementById('inputBox').focus()
 }
 
-async function callVikram(messages, isOpening = false){
+async function callVikram(messages){
   try {
     const res = await fetch('/api/vikram', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ systemPrompt, messages })
     })
-    if(!res.ok) return "Something went wrong on my end. Try again."
+    if(!res.ok) return "Something went wrong. Try again in a second."
     const data = await res.json()
-    return data.reply || "Hmm, try again."
+    return data.reply || "Try again."
   } catch(e) {
     return "Connection issue. Check your internet."
   }
@@ -549,7 +548,6 @@ async function callVikram(messages, isOpening = false){
 
 function addMessage(role, text){
   const inner = document.getElementById('chatInner')
-
   const msg = document.createElement('div')
   msg.className = `msg ${role}`
 
