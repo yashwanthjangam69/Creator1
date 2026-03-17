@@ -1,39 +1,17 @@
-import { createClient } from "@supabase/supabase-js"
+const { createClient } = require("@supabase/supabase-js")
 
-export default async function handler(req, res) {
-  
+module.exports = async function handler(req, res) {
+
   const { user_id, username } = req.query
 
   if (!user_id || !username) {
     return res.status(400).json({ error: "user_id and username are required" })
   }
 
-  const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY
-
   const supabase = createClient(
     process.env.SUPABASE_URL,
-    SUPABASE_SERVICE_KEY
+    process.env.SUPABASE_SERVICE_KEY
   )
-
-  // Check last_scraped_at for 24hr logic
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("last_scraped_at")
-    .eq("id", user_id)
-    .single()
-
-  const lastScraped = profile?.last_scraped_at ? new Date(profile.last_scraped_at) : null
-  const now = new Date()
-  const hoursSinceLastScrape = lastScraped ? (now - lastScraped) / (1000 * 60 * 60) : null
-
-  if (lastScraped && hoursSinceLastScrape < 24) {
-    return res.json({
-      success: true,
-      scraped: false,
-      message: "Using existing data",
-      last_scraped_at: lastScraped
-    })
-  }
 
   try {
 
@@ -59,10 +37,10 @@ export default async function handler(req, res) {
     const runId = runData.data?.id
 
     if (!runId) {
-      return res.status(502).json({ error: "No run ID returned from Apify", detail: runData })
+      return res.status(502).json({ error: "No run ID from Apify", detail: runData })
     }
 
-    // Poll every 5 seconds up to 10 times (50 seconds)
+    // Poll every 5 seconds up to 10 times
     let igProfile = null
 
     for (let i = 0; i < 10; i++) {
@@ -75,7 +53,6 @@ export default async function handler(req, res) {
       if (!dataRes.ok) continue
 
       const items = await dataRes.json()
-
       if (items && items.length > 0) {
         igProfile = items[0]
         break
@@ -83,10 +60,10 @@ export default async function handler(req, res) {
     }
 
     if (!igProfile) {
-      return res.status(504).json({ error: "Apify timed out, no data returned. Please try again." })
+      return res.status(504).json({ error: "Apify timed out" })
     }
 
-    const scrapedAt = now.toISOString()
+    const scrapedAt = new Date().toISOString()
 
     // Insert into profile_snapshots
     const { error: snapshotError } = await supabase
@@ -114,11 +91,11 @@ export default async function handler(req, res) {
       })
 
     if (snapshotError) {
-      console.error("profile_snapshots error:", snapshotError)
-      return res.status(500).json({ error: "Failed to save profile snapshot", detail: snapshotError.message })
+      console.error("snapshot error:", snapshotError)
+      return res.status(500).json({ error: "Failed to save snapshot", detail: snapshotError.message })
     }
 
-    // Insert posts into posts_data
+    // Insert posts
     let insertedPosts = 0
     const posts = igProfile.latestPosts || []
 
@@ -172,7 +149,6 @@ export default async function handler(req, res) {
 
     return res.json({
       success: true,
-      scraped: true,
       posts_saved: insertedPosts,
       last_scraped_at: scrapedAt
     })
