@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitor Analysis — Creator Intelligence</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase.js"></script>
+<script src="metrics.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+:root{
+  --bg:#f0f5fb;
+  --white:#ffffff;
+  --blue:#2f6bcd;
+  --blue-deep:#0b487f;
+  --blue-light:#e8f0fc;
+  --blue-mid:#b8cef5;
+  --text:#1a2540;
+  --muted:#0b487f;
+  --border:#dce8f8;
+  --green:#2e9e6b;
+  --green-bg:#f0faf6;
+  --green-border:#b6e8d2;
+  --orange:#e07a2f;
+  --orange-bg:#fef6ee;
+  --red:#e05c5c;
+  --red-bg:#fef2f2;
+  --red-border:#fcd6d6;
+}
+
+body{
+  font-family:'DM Sans',sans-serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh; padding-bottom:80px;
+}
+
+.bg-orb{ position:fixed; border-radius:50%; pointer-events:none; z-index:0; filter:blur(60px); }
+.bg-orb-1{ width:400px; height:400px; background:rgba(47,107,205,0.07); top:-100px; right:-100px; }
+.bg-orb-2{ width:300px; height:300px; background:rgba(11,72,127,0.05); bottom:100px; left:-80px; }
+
+.nav{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:20px 20px 0; position:relative; z-index:10;
+}
+
+.nav-back{
+  display:flex; align-items:center; gap:8px; font-size:14px;
+  color:var(--muted); cursor:pointer; background:none; border:none;
+  font-family:'DM Sans',sans-serif; transition:color 0.2s;
+}
+.nav-back:hover{ color:var(--text); }
+.nav-title{ font-family:'Playfair Display',serif; font-size:16px; font-weight:600; color:var(--text); }
+
+.container{ max-width:480px; margin:0 auto; padding:0 16px; position:relative; z-index:1; }
+
+/* Hero */
+.hero{ padding:28px 0 20px; animation:fadeUp 0.5s ease both; }
+.hero-eyebrow{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+.hero-title{ font-family:'Playfair Display',serif; font-size:26px; font-weight:700; line-height:1.15; color:var(--text); }
+.hero-title em{ font-style:italic; color:var(--blue); }
+.hero-sub{ font-size:13px; color:var(--muted); margin-top:8px; font-weight:300; }
+
+/* Search card */
+.search-card{
+  background:var(--white); border:1px solid var(--border);
+  border-radius:20px; padding:24px;
+  box-shadow:0 4px 24px rgba(47,107,205,0.08);
+  margin-bottom:24px; animation:fadeUp 0.5s 0.1s ease both;
+}
+
+.search-label{ font-size:11px; font-weight:500; letter-spacing:0.06em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; display:block; }
+
+.search-row{ display:flex; gap:10px; }
+
+.search-input-wrap{ position:relative; flex:1; }
+
+.search-prefix{
+  position:absolute; left:14px; top:50%;
+  transform:translateY(-50%);
+  color:var(--muted); font-size:15px; pointer-events:none;
+}
+
+.search-input{
+  width:100%; padding:13px 15px 13px 34px;
+  background:var(--bg); border:1.5px solid var(--border);
+  border-radius:10px; color:var(--text);
+  font-family:'DM Sans',sans-serif; font-size:15px; outline:none;
+  transition:border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.search-input:focus{
+  border-color:var(--blue-mid); background:white;
+  box-shadow:0 0 0 4px rgba(47,107,205,0.08);
+}
+
+.search-input::placeholder{ color:#b0c0d8; }
+
+.search-btn{
+  padding:13px 20px;
+  background:linear-gradient(135deg, var(--blue-deep), var(--blue));
+  color:white; border:none; border-radius:10px;
+  font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500;
+  cursor:pointer; transition:opacity 0.2s, transform 0.15s;
+  box-shadow:0 4px 12px rgba(47,107,205,0.3); white-space:nowrap;
+}
+
+.search-btn:hover{ opacity:0.9; transform:translateY(-1px); }
+.search-btn:disabled{ opacity:0.5; cursor:not-allowed; transform:none; }
+
+/* Loading */
+.loading-card{
+  background:var(--white); border:1px solid var(--border);
+  border-radius:20px; padding:40px 28px; text-align:center;
+  box-shadow:0 4px 24px rgba(47,107,205,0.08); margin-bottom:20px;
+}
+
+.spinner{ width:36px; height:36px; border:3px solid var(--blue-light); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px; }
+@keyframes spin{ to{transform:rotate(360deg)} }
+.loading-title{ font-family:'Playfair Display',serif; font-size:17px; margin-bottom:6px; }
+.loading-sub{ font-size:13px; color:var(--muted); font-weight:300; }
+
+/* Vs header */
+.vs-header{
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:20px; animation:fadeUp 0.5s ease both;
+}
+
+.vs-profile{
+  flex:1; background:var(--white); border:1px solid var(--border);
+  border-radius:16px; padding:16px 12px; text-align:center;
+  box-shadow:0 2px 8px rgba(47,107,205,0.05);
+}
+
+.vs-profile img{
+  width:52px; height:52px; border-radius:50%;
+  object-fit:cover; border:2px solid var(--blue-mid); margin-bottom:8px;
+}
+
+.vs-profile-placeholder{
+  width:52px; height:52px; border-radius:50%;
+  background:var(--blue-light); display:flex; align-items:center;
+  justify-content:center; font-size:22px; margin:0 auto 8px;
+  border:2px solid var(--blue-mid);
+}
+
+.vs-name{
+  font-size:13px; font-weight:600; color:var(--text);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+
+.vs-handle{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+.vs-badge{
+  background:var(--blue-light); color:var(--blue-deep);
+  border:1px solid var(--blue-mid); border-radius:100px;
+  font-size:10px; font-weight:600; padding:3px 8px;
+  margin-top:6px; display:inline-block;
+}
+
+.vs-divider{
+  font-family:'Playfair Display',serif; font-size:20px;
+  font-weight:700; color:var(--blue-mid); flex-shrink:0;
+}
+
+/* Competitor verdict */
+.verdict-card{
+  border-radius:16px; padding:20px; margin-bottom:16px;
+  animation:fadeUp 0.5s 0.05s ease both;
+}
+
+.verdict-card.true-competitor{
+  background:var(--green-bg); border:1px solid var(--green-border);
+}
+
+.verdict-card.not-competitor{
+  background:var(--red-bg); border:1px solid var(--red-border);
+}
+
+.verdict-card.partial{
+  background:var(--orange-bg); border:1px solid #fad9b8;
+}
+
+.verdict-title{
+  font-family:'Playfair Display',serif; font-size:16px; font-weight:600;
+  margin-bottom:6px;
+}
+
+.verdict-card.true-competitor .verdict-title{ color:var(--green); }
+.verdict-card.not-competitor .verdict-title{ color:var(--red); }
+.verdict-card.partial .verdict-title{ color:var(--orange); }
+
+.verdict-text{ font-size:13px; line-height:1.6; color:var(--text); font-weight:300; }
+
+/* Comparison grid */
+.section{ margin-bottom:24px; }
+.section-head{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+.section-icon{ width:30px; height:30px; border-radius:8px; background:var(--blue-light); display:flex; align-items:center; justify-content:center; font-size:14px; }
+.section-title{ font-family:'Playfair Display',serif; font-size:16px; font-weight:600; color:var(--text); }
+
+.compare-row{
+  background:var(--white); border:1px solid var(--border);
+  border-radius:14px; padding:16px;
+  box-shadow:0 2px 8px rgba(47,107,205,0.04);
+  margin-bottom:10px;
+  display:grid; grid-template-columns:1fr auto 1fr;
+  align-items:center; gap:8px;
+}
+
+.compare-val{
+  font-family:'Playfair Display',serif;
+  font-size:20px; font-weight:700; color:var(--text);
+}
+
+.compare-val.you{ text-align:left; }
+.compare-val.them{ text-align:right; }
+.compare-val.winning{ color:var(--green); }
+.compare-val.losing{ color:var(--red); }
+
+.compare-label{
+  font-size:10px; color:var(--muted); text-align:center;
+  text-transform:uppercase; letter-spacing:0.06em; line-height:1.4;
+}
+
+.compare-winner{
+  display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+
+/* AI Analysis */
+.ai-card{
+  background:linear-gradient(135deg, var(--blue-deep), var(--blue));
+  border-radius:20px; padding:24px; margin-bottom:20px;
+  position:relative; overflow:hidden;
+  animation:fadeUp 0.5s 0.2s ease both;
+}
+
+.ai-card::before{
+  content:''; position:absolute; top:-40px; right:-40px;
+  width:160px; height:160px; background:rgba(255,255,255,0.06); border-radius:50%;
+}
+
+.ai-card::after{
+  content:''; position:absolute; bottom:-50px; left:-30px;
+  width:200px; height:200px; background:rgba(255,255,255,0.04); border-radius:50%;
+}
+
+.ai-label{ font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.6); margin-bottom:8px; position:relative; z-index:1; }
+.ai-title{ font-family:'Playfair Display',serif; font-size:18px; font-weight:600; color:white; margin-bottom:14px; position:relative; z-index:1; }
+.ai-content{ font-size:14px; color:rgba(255,255,255,0.9); line-height:1.7; position:relative; z-index:1; font-weight:300; }
+.ai-content strong{ color:white; font-weight:600; }
+
+.ai-loading{
+  display:flex; align-items:center; gap:12px;
+  position:relative; z-index:1;
+}
+
+.ai-spinner{ width:20px; height:20px; border:2px solid rgba(255,255,255,0.3); border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; flex-shrink:0; }
+.ai-loading-text{ font-size:13px; color:rgba(255,255,255,0.8); }
+
+/* Error */
+.error-card{
+  background:var(--red-bg); border:1px solid var(--red-border);
+  border-radius:14px; padding:20px; text-align:center; margin-bottom:16px;
+}
+
+.error-card p{ color:var(--red); font-size:14px; }
+
+@keyframes fadeUp{ from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+.section:nth-child(1){ animation:fadeUp 0.5s 0.1s ease both; }
+.section:nth-child(2){ animation:fadeUp 0.5s 0.15s ease both; }
+.section:nth-child(3){ animation:fadeUp 0.5s 0.2s ease both; }
+
+</style>
+</head>
+
+<body>
+
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+
+<div class="nav">
+  <button class="nav-back" onclick="window.location='dashboard.html'">← Back</button>
+  <div class="nav-title">Competitor Analysis</div>
+  <div style="width:60px"></div>
+</div>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-eyebrow">Competitor Analysis</div>
+    <div class="hero-title">See how you stack up <em>for real.</em></div>
+    <div class="hero-sub">Enter any Instagram handle and get an honest comparison.</div>
+  </div>
+
+  <div class="search-card">
+    <span class="search-label">Enter competitor's Instagram username</span>
+    <div class="search-row">
+      <div class="search-input-wrap">
+        <span class="search-prefix">@</span>
+        <input
+          class="search-input"
+          id="competitorInput"
+          type="text"
+          placeholder="theirhandle"
+          onkeydown="if(event.key==='Enter') analyse()"
+        >
+      </div>
+      <button class="search-btn" id="analyseBtn" onclick="analyse()">Analyse</button>
+    </div>
+  </div>
+
+  <div id="results"></div>
+
+</div>
+
+<script>
+
+let myProfile = null
+let mySnapshot = null
+let myMetrics = null
+let userId = null
+
+async function init(){
+  const { data: sd } = await client.auth.getSession()
+  if(!sd.session){ window.location='index.html'; return }
+
+  userId = sd.session.user.id
+
+  const { data: profile } = await client
+    .from('profiles')
+    .select('name, instagram, category')
+    .eq('id', userId)
+    .single()
+
+  if(!profile){ window.location='dashboard.html'; return }
+
+  myProfile = profile
+
+  const { data: snapshot } = await client
+    .from('profile_snapshots')
+    .select('*')
+    .eq('user_id', userId)
+    .order('scraped_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  mySnapshot = snapshot
+  myMetrics = await getMetrics(userId)
+}
+
+async function analyse(){
+  const input = document.getElementById('competitorInput').value.trim().replace(/^@/, '')
+  if(!input){ return }
+
+  document.getElementById('analyseBtn').disabled = true
+  document.getElementById('results').innerHTML = `
+    <div class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-title">Fetching @${input}'s profile</div>
+      <div class="loading-sub">This takes about 20–30 seconds...</div>
+    </div>
+  `
+
+  try {
+    const res = await fetch(`/api/competitor-scrape?username=${input}`)
+    const data = await res.json()
+
+    if(!res.ok || !data.profile){
+      document.getElementById('results').innerHTML = `
+        <div class="error-card"><p>${data.error || 'Could not fetch this profile. Make sure it is public and the username is correct.'}</p></div>
+      `
+      document.getElementById('analyseBtn').disabled = false
+      return
+    }
+
+    renderComparison(data.profile)
+
+  } catch(err) {
+    document.getElementById('results').innerHTML = `
+      <div class="error-card"><p>Something went wrong. Please try again.</p></div>
+    `
+    document.getElementById('analyseBtn').disabled = false
+  }
+}
+
+function calcCompetitorMetrics(profile){
+  const posts = profile.latestPosts || []
+  if(posts.length === 0) return null
+
+  // Pinned logic — same as metrics.js
+  const pinned = posts.filter(p => p.isPinned)
+  const nonPinned = posts.filter(p => !p.isPinned)
+  const recent = nonPinned.slice(0, 10)
+
+  if(recent.length === 0) return null
+
+  const newestDate = new Date(recent[0].timestamp)
+  const oldestDate = new Date(recent[recent.length - 1].timestamp)
+
+  const validPinned = pinned.filter(p => {
+    const d = new Date(p.timestamp)
+    return d >= oldestDate && d <= newestDate
+  })
+
+  const toAnalyze = [...recent]
+  for(const p of validPinned){
+    if(!toAnalyze.find(x => x.id === p.id)) toAnalyze.push(p)
+  }
+
+  const followers = profile.followersCount || 0
+  const total = toAnalyze.length
+
+  const totalLikes = toAnalyze.reduce((s,p) => s + (p.likesCount||0), 0)
+  const totalComments = toAnalyze.reduce((s,p) => s + (p.commentsCount||0), 0)
+
+  const avgLikes = Math.round(totalLikes / total)
+  const avgComments = Math.round(totalComments / total)
+
+  // ER formula same as metrics.js
+  let totalER = 0, erCount = 0
+  for(const post of toAnalyze){
+    const likes = post.likesCount || 0
+    const comments = post.commentsCount || 0
+    const views = post.videoViewCount || 0
+    if(post.type === 'Video' && views > 0){
+      const lr = likes/views*100
+      const cr = comments/views*100
+      totalER += (cr*lr)+lr
+      erCount++
+    } else if((post.type === 'Image' || post.type === 'Sidecar') && likes > 0){
+      totalER += comments/likes*100
+      erCount++
+    }
+  }
+
+  const engagementRate = erCount > 0 ? parseFloat((totalER/erCount).toFixed(2)) : 0
+
+  const videos = toAnalyze.filter(p => p.type==='Video' && p.videoViewCount > 0)
+  const totalViews = videos.reduce((s,p) => s+(p.videoViewCount||0), 0)
+  const avgVideoViews = videos.length > 0 ? Math.round(totalViews/videos.length) : 0
+  const reachRate = followers > 0 && avgVideoViews > 0 ? parseFloat((avgVideoViews/followers*100).toFixed(1)) : null
+
+  const daysDiff = (newestDate - oldestDate) / (1000*60*60*24)
+  const weeksDiff = daysDiff/7 || 1
+  const postsPerWeek = parseFloat((total/weeksDiff).toFixed(1))
+
+  const hashtagCount = {}
+  for(const post of toAnalyze){
+    for(const tag of (post.hashtags||[])){
+      hashtagCount[tag] = (hashtagCount[tag]||0) + 1
+    }
+  }
+
+  const topHashtags = Object.entries(hashtagCount)
+    .sort((a,b) => b[1]-a[1])
+    .slice(0,5)
+    .map(([tag,count]) => ({ tag, count }))
+
+  return {
+    totalPostsAnalyzed: total,
+    followersCount: followers,
+    avgLikes,
+    avgComments,
+    engagementRate,
+    avgVideoViews,
+    reachRate,
+    postsPerWeek,
+    topHashtags
+  }
+}
+
+function formatNum(n){
+  if(!n && n !== 0) return '—'
+  if(n >= 1000000) return (n/1000000).toFixed(1)+'M'
+  if(n >= 1000) return (n/1000).toFixed(1)+'K'
+  return n.toLocaleString()
+}
+
+function judgeCompetitor(mySnap, compProfile, myMetrics, compMetrics){
+  const myFollowers = mySnap?.followers_count || 0
+  const theirFollowers = compProfile.followersCount || 0
+
+  const followerRatio = myFollowers > 0 ? theirFollowers/myFollowers : 999
+  const nicheMatch = true // We don't know their niche, AI will judge
+
+  if(followerRatio > 10 || followerRatio < 0.1){
+    return {
+      verdict: 'not-competitor',
+      title: '❌ Not a true competitor',
+      reason: `Their follower count (${formatNum(theirFollowers)}) is ${followerRatio > 10 ? Math.round(followerRatio)+'x bigger' : Math.round(1/followerRatio)+'x smaller'} than yours (${formatNum(myFollowers)}). That's not a fair comparison.`
+    }
+  }
+
+  if(followerRatio > 3 || followerRatio < 0.33){
+    return {
+      verdict: 'partial',
+      title: '⚠️ Aspirational competitor',
+      reason: `They're in a different growth league than you right now, but you can learn from them.`
+    }
+  }
+
+  return {
+    verdict: 'true-competitor',
+    title: '✅ True competitor',
+    reason: `You're in the same follower range. This is a valid comparison.`
+  }
+}
+
+function compareVal(mine, theirs, higherIsBetter = true){
+  if(mine === theirs) return { myClass:'', theirClass:'' }
+  const iWin = higherIsBetter ? mine > theirs : mine < theirs
+  return {
+    myClass: iWin ? 'winning' : 'losing',
+    theirClass: iWin ? 'losing' : 'winning'
+  }
+}
+
+async function renderComparison(compProfile){
+  const compMetrics = calcCompetitorMetrics(compProfile)
+  const judgment = judgeCompetitor(mySnapshot, compProfile, myMetrics, compMetrics)
+
+  const myName = myProfile?.name?.split(' ')[0] || 'You'
+  const myHandle = myProfile?.instagram || 'you'
+  const myPic = mySnapshot?.profile_pic_url
+  const theirPic = compProfile.profilePicUrl
+
+  // Build comparison rows
+  const rows = [
+    { label:'Followers', mine: formatNum(mySnapshot?.followers_count), theirs: formatNum(compProfile.followersCount), mineRaw: mySnapshot?.followers_count||0, theirsRaw: compProfile.followersCount||0 },
+    { label:'Engagement Rate', mine: (myMetrics?.engagementRate||0)+'%', theirs: (compMetrics?.engagementRate||0)+'%', mineRaw: myMetrics?.engagementRate||0, theirsRaw: compMetrics?.engagementRate||0 },
+    { label:'Avg Likes', mine: formatNum(myMetrics?.avgLikes), theirs: formatNum(compMetrics?.avgLikes), mineRaw: myMetrics?.avgLikes||0, theirsRaw: compMetrics?.avgLikes||0 },
+    { label:'Avg Comments', mine: formatNum(myMetrics?.avgComments), theirs: formatNum(compMetrics?.avgComments), mineRaw: myMetrics?.avgComments||0, theirsRaw: compMetrics?.avgComments||0 },
+    { label:'Avg Video Views', mine: formatNum(myMetrics?.avgVideoViews), theirs: formatNum(compMetrics?.avgVideoViews), mineRaw: myMetrics?.avgVideoViews||0, theirsRaw: compMetrics?.avgVideoViews||0 },
+    { label:'Posts / Week', mine: myMetrics?.postsPerWeek||0, theirs: compMetrics?.postsPerWeek||0, mineRaw: myMetrics?.postsPerWeek||0, theirsRaw: compMetrics?.postsPerWeek||0 },
+    { label:'Total Posts', mine: formatNum(mySnapshot?.posts_count), theirs: formatNum(compProfile.postsCount), mineRaw: mySnapshot?.posts_count||0, theirsRaw: compProfile.postsCount||0 },
+  ]
+
+  document.getElementById('results').innerHTML = `
+
+    <!-- VS Header -->
+    <div class="vs-header">
+      <div class="vs-profile">
+        ${myPic ? `<img src="${myPic}" alt="you">` : `<div class="vs-profile-placeholder">👤</div>`}
+        <div class="vs-name">${myName}</div>
+        <div class="vs-handle">@${myHandle}</div>
+        <div class="vs-badge">You</div>
+      </div>
+      <div class="vs-divider">VS</div>
+      <div class="vs-profile">
+        ${theirPic ? `<img src="${theirPic}" alt="them">` : `<div class="vs-profile-placeholder">👤</div>`}
+        <div class="vs-name">${compProfile.fullName || compProfile.username}</div>
+        <div class="vs-handle">@${compProfile.username}</div>
+        <div class="vs-badge">${compProfile.verified ? '✓ Verified' : 'Competitor'}</div>
+      </div>
+    </div>
+
+    <!-- Verdict -->
+    <div class="verdict-card ${judgment.verdict}">
+      <div class="verdict-title">${judgment.title}</div>
+      <div class="verdict-text">${judgment.reason}</div>
+    </div>
+
+    <!-- Stats comparison -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-icon">📊</div>
+        <div class="section-title">Head to Head</div>
+      </div>
+      ${rows.map(row => {
+        const cmp = compareVal(row.mineRaw, row.theirsRaw)
+        return `
+          <div class="compare-row">
+            <div>
+              <div class="compare-val you ${cmp.myClass}">${row.mine}</div>
+            </div>
+            <div class="compare-winner">
+              <div class="compare-label">${row.label}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="compare-val them ${cmp.theirClass}">${row.theirs}</div>
+            </div>
+          </div>
+        `
+      }).join('')}
+    </div>
+
+    <!-- AI Analysis -->
+    <div class="ai-card" id="aiCard">
+      <div class="ai-label">Vikram's Analysis</div>
+      <div class="ai-title">What this really means for you</div>
+      <div class="ai-loading" id="aiLoading">
+        <div class="ai-spinner"></div>
+        <div class="ai-loading-text">Vikram is reading between the lines...</div>
+      </div>
+      <div class="ai-content" id="aiContent" style="display:none"></div>
+    </div>
+
+  `
+
+  // Get AI analysis
+  await getAIAnalysis(compProfile, compMetrics, judgment)
+
+  document.getElementById('analyseBtn').disabled = false
+}
+
+async function getAIAnalysis(compProfile, compMetrics, judgment){
+  const prompt = buildAnalysisPrompt(compProfile, compMetrics, judgment)
+
+  try {
+    const res = await fetch('/api/vikram', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemPrompt: `You are Vikram — the world's best Instagram growth strategist with deep knowledge of the Indian Instagram ecosystem. You understand Indian influencer culture, brand deal landscape in India, regional content dynamics, and what actually works for Indian creators in ${new Date().getFullYear()}. You speak directly and honestly. No fluff. You know the difference between aspirational comparison and practical benchmarking. Format your response with clear sections using **bold headers**. Use line breaks between sections. Keep it under 250 words total.`,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    })
+
+    const data = await res.json()
+    const reply = data.reply || 'Analysis unavailable.'
+
+    document.getElementById('aiLoading').style.display = 'none'
+    const aiContent = document.getElementById('aiContent')
+    aiContent.style.display = 'block'
+    aiContent.innerHTML = reply
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>')
+
+  } catch(err){
+    document.getElementById('aiLoading').style.display = 'none'
+    document.getElementById('aiContent').style.display = 'block'
+    document.getElementById('aiContent').textContent = 'Could not load analysis. Try again.'
+  }
+}
+
+function buildAnalysisPrompt(compProfile, compMetrics, judgment){
+  return `Compare these two Indian Instagram creators and give an honest, sharp analysis.
+
+MY PROFILE:
+Handle: @${myProfile?.instagram}
+Category: ${myProfile?.category}
+Followers: ${formatNum(mySnapshot?.followers_count)}
+Engagement Rate: ${myMetrics?.engagementRate}%
+Avg Likes: ${myMetrics?.avgLikes}
+Avg Comments: ${myMetrics?.avgComments}
+Avg Video Views: ${formatNum(myMetrics?.avgVideoViews)}
+Posts/Week: ${myMetrics?.postsPerWeek}
+Top Hashtags: ${myMetrics?.topHashtags?.map(h => '#'+h.tag).join(', ')}
+Bio: ${mySnapshot?.biography || 'Not set'}
+
+COMPETITOR:
+Handle: @${compProfile.username}
+Name: ${compProfile.fullName || 'Unknown'}
+Followers: ${formatNum(compProfile.followersCount)}
+Engagement Rate: ${compMetrics?.engagementRate}%
+Avg Likes: ${compMetrics?.avgLikes}
+Avg Comments: ${compMetrics?.avgComments}
+Avg Video Views: ${formatNum(compMetrics?.avgVideoViews)}
+Posts/Week: ${compMetrics?.postsPerWeek}
+Top Hashtags: ${compMetrics?.topHashtags?.map(h => '#'+h.tag).join(', ')}
+Bio: ${compProfile.biography || 'Not set'}
+Verified: ${compProfile.verified ? 'Yes' : 'No'}
+Business Account: ${compProfile.isBusinessAccount ? 'Yes' : 'No'}
+
+Verdict so far: ${judgment.title} — ${judgment.reason}
+
+Give me:
+1. **Are they a true competitor?** — honest verdict considering Indian Instagram ecosystem, niche, follower range
+2. **Where you're winning** — be specific
+3. **Where they're beating you** — be specific  
+4. **One thing to steal from them** — what strategy or approach should I copy
+5. **What to do next** — one clear action to close the gap or pull ahead
+
+Be direct. Reference actual numbers. Keep Indian creator context in mind.`
+}
+
+init()
+
+</script>
+
+</body>
+</html>
