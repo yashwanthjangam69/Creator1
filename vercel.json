@@ -1,5 +1,6 @@
 {
   "rewrites": [
+    { "source": "/", "destination": "/landing.html" },
     { "source": "/((?!api/).*)", "destination": "/Creators/$1" }
   ],
   "crons": [
