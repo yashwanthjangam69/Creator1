@@ -1,14 +1,21 @@
-export default async function handler(req, res) {
+const { createClient } = require("@supabase/supabase-js")
+
+module.exports = async function handler(req, res) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { messages, systemPrompt } = req.body
+  const { messages, systemPrompt, user_id, session_id } = req.body
 
   if (!messages || !systemPrompt) {
     return res.status(400).json({ error: 'messages and systemPrompt are required' })
   }
+
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
+  )
 
   try {
 
@@ -29,13 +36,38 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       const err = await response.json()
-      console.error('Anthropic API error:', err)
       return res.status(502).json({ error: 'AI service error', detail: err })
     }
 
     const data = await response.json()
-    const text = data.content?.[0]?.text || ''
-    return res.json({ reply: text })
+    const reply = data.content?.[0]?.text || ''
+
+    // Save messages to ai_conversations
+    if (user_id && session_id) {
+      const lastUserMsg = messages[messages.length - 1]
+
+      // Save user message
+      await supabase.from('ai_conversations').insert({
+        user_id,
+        feature: 'vikram',
+        session_id,
+        role: 'user',
+        content: lastUserMsg.content,
+        metadata: {}
+      })
+
+      // Save AI response
+      await supabase.from('ai_conversations').insert({
+        user_id,
+        feature: 'vikram',
+        session_id,
+        role: 'assistant',
+        content: reply,
+        metadata: {}
+      })
+    }
+
+    return res.json({ reply })
 
   } catch (err) {
     console.error('Vikram error:', err)
