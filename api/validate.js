@@ -1,14 +1,21 @@
-export default async function handler(req, res) {
+const { createClient } = require("@supabase/supabase-js")
+
+module.exports = async function handler(req, res) {
 
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' })
   }
 
-  const { type, images, hook, caption, hashtags, category } = req.body
+  const { type, images, hook, caption, hashtags, category, user_id } = req.body
 
   if (!images || images.length === 0) {
     return res.status(400).json({ error: 'At least one image is required' })
   }
+
+  const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
+  )
 
   const year = new Date().getFullYear()
 
@@ -28,7 +35,6 @@ export default async function handler(req, res) {
     let analysisPrompt = ''
 
     if (type === 'reel') {
-
       analysisPrompt = `${personality}
 
 Analyze this Reel submission:
@@ -59,7 +65,6 @@ Give a score out of 10. One clear verdict.
 Write a better hook. Write a better caption. Give exactly 10 better hashtags for the ${category || 'general'} niche in India. Be specific — give them something they can copy and use right now.`
 
     } else if (type === 'image') {
-
       analysisPrompt = `${personality}
 
 Analyze this single image post:
@@ -86,7 +91,6 @@ Score out of 10. One clear verdict.
 Write a better caption. Give exactly 10 better hashtags for the ${category || 'general'} niche in India. Give them something they can copy right now.`
 
     } else if (type === 'sidecar') {
-
       analysisPrompt = `${personality}
 
 Analyze this carousel post (${images.length} slides):
@@ -114,7 +118,6 @@ Score out of 10. One clear verdict.
 
 **💡 Suggested Improvements**
 Rewrite slide 1 text if it's weak. Write a better caption. Give exactly 10 better hashtags for the ${category || 'general'} niche in India. Give them something they can copy right now.`
-
     }
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -135,12 +138,24 @@ Rewrite slide 1 text if it's weak. Write a better caption. Give exactly 10 bette
 
     if (!response.ok) {
       const err = await response.json()
-      console.error('Claude API error:', err)
       return res.status(502).json({ error: 'AI service error', detail: err })
     }
 
     const data = await response.json()
     const analysis = data.content?.[0]?.text || ''
+
+    // Save to ai_conversations
+    if (user_id) {
+      const sessionId = crypto.randomUUID()
+      await supabase.from('ai_conversations').insert({
+        user_id,
+        feature: 'reel-validator',
+        session_id: sessionId,
+        role: 'assistant',
+        content: analysis,
+        metadata: { type, caption, hashtags, hook }
+      })
+    }
 
     return res.json({ success: true, analysis })
 
