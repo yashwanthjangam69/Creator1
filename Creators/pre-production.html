@@ -10,275 +10,65 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-
 *{ margin:0; padding:0; box-sizing:border-box; }
-
 :root{
-  --bg:#f0f5fb;
-  --white:#ffffff;
-  --blue:#2f6bcd;
-  --blue-deep:#0b487f;
-  --blue-light:#e8f0fc;
-  --blue-mid:#b8cef5;
-  --text:#1a2540;
-  --muted:#0b487f;
-  --border:#dce8f8;
-  --gold:#e8a020;
-  --gold-bg:#fef9ee;
-  --gold-border:#fde8b0;
+  --bg:#f0f5fb; --white:#ffffff; --blue:#2f6bcd; --blue-deep:#0b487f;
+  --blue-light:#e8f0fc; --blue-mid:#b8cef5; --text:#1a2540; --muted:#0b487f; --border:#dce8f8;
+  --gold:#e8a020; --gold-bg:#fef9ee; --gold-border:#fde8b0;
 }
-
-html, body{ height:100%; overflow:hidden; }
-
-body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--bg);
-  color:var(--text);
-  display:flex;
-  flex-direction:column;
-}
-
-/* Nav */
-.nav{
-  display:flex; align-items:center; gap:12px;
-  padding:14px 16px;
-  background:var(--white);
-  border-bottom:1px solid var(--border);
-  flex-shrink:0;
-}
-
-.nav-back{
-  background:none; border:none;
-  font-size:22px; cursor:pointer;
-  color:var(--muted); line-height:1;
-}
-
-.nav-icon{
-  width:38px; height:38px; border-radius:11px;
-  background:linear-gradient(135deg,#8B4513,#e8a020);
-  display:flex; align-items:center; justify-content:center;
-  font-size:17px; flex-shrink:0;
-  box-shadow:0 4px 12px rgba(232,160,32,0.3);
-}
-
-.nav-name{
-  font-family:'Playfair Display',serif;
-  font-size:16px; font-weight:600; color:var(--text);
-}
-
-.nav-sub{
-  font-size:11px; color:var(--muted);
-  display:flex; align-items:center; gap:4px; margin-top:1px;
-}
-
-.nav-right{
-  margin-left:auto;
-  display:flex; gap:8px;
-}
-
-.new-session-btn{
-  padding:8px 14px;
-  background:linear-gradient(135deg,var(--blue-deep),var(--blue));
-  color:white; border:none; border-radius:8px;
-  font-family:'DM Sans',sans-serif;
-  font-size:12px; font-weight:500;
-  cursor:pointer; transition:opacity 0.2s;
-}
-
+html,body{ height:100%; overflow:hidden; }
+body{ font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column; }
+.nav{ display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--white); border-bottom:1px solid var(--border); flex-shrink:0; }
+.nav-back{ background:none; border:none; font-size:22px; cursor:pointer; color:var(--muted); line-height:1; }
+.nav-icon{ width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,#8B4513,var(--gold)); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; box-shadow:0 4px 12px rgba(232,160,32,0.3); }
+.nav-name{ font-family:'Playfair Display',serif; font-size:16px; font-weight:600; color:var(--text); }
+.nav-sub{ font-size:11px; color:var(--muted); margin-top:1px; }
+.nav-right{ margin-left:auto; display:flex; gap:8px; }
+.new-session-btn{ padding:8px 14px; background:linear-gradient(135deg,var(--blue-deep),var(--blue)); color:white; border:none; border-radius:8px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; cursor:pointer; transition:opacity 0.2s; }
 .new-session-btn:hover{ opacity:0.9; }
-
-/* Sessions sidebar - shown as bottom sheet on mobile */
-.sessions-panel{
-  background:var(--white);
-  border-bottom:1px solid var(--border);
-  padding:12px 16px;
-  flex-shrink:0;
-  display:none;
-}
-
+.sessions-panel{ background:var(--white); border-bottom:1px solid var(--border); padding:12px 16px; flex-shrink:0; display:none; }
 .sessions-panel.visible{ display:block; }
-
-.sessions-label{
-  font-size:10px; font-weight:600; letter-spacing:0.08em;
-  text-transform:uppercase; color:var(--muted); margin-bottom:10px;
-}
-
-.sessions-list{
-  display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;
-}
-
+.sessions-label{ font-size:10px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+.sessions-list{ display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; }
 .sessions-list::-webkit-scrollbar{ height:0; }
-
-.session-pill{
-  background:var(--bg); border:1px solid var(--border);
-  border-radius:100px; padding:6px 14px;
-  font-size:12px; color:var(--text); white-space:nowrap;
-  cursor:pointer; transition:all 0.2s; flex-shrink:0;
-}
-
-.session-pill.active{
-  background:var(--blue-light); border-color:var(--blue-mid);
-  color:var(--blue-deep);
-}
-
+.session-pill{ background:var(--bg); border:1px solid var(--border); border-radius:100px; padding:6px 14px; font-size:12px; color:var(--text); white-space:nowrap; cursor:pointer; transition:all 0.2s; flex-shrink:0; }
+.session-pill.active{ background:var(--blue-light); border-color:var(--blue-mid); color:var(--blue-deep); }
 .session-pill:hover{ border-color:var(--blue-mid); }
-
-/* Chat */
-.chat-scroll{
-  flex:1; overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-}
-
+.chat-scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 .chat-scroll::-webkit-scrollbar{ width:0; }
-
-.chat-inner{
-  max-width:480px; margin:0 auto;
-  padding:20px 16px 12px;
-  display:flex; flex-direction:column; gap:14px;
-}
-
-/* Loading */
-.loading-wrap{
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  padding:80px 20px; gap:14px;
-}
-
-.spinner{
-  width:34px; height:34px;
-  border:3px solid var(--blue-light);
-  border-top-color:var(--blue);
-  border-radius:50%; animation:spin 0.8s linear infinite;
-}
-
+.chat-inner{ max-width:480px; margin:0 auto; padding:20px 16px 12px; display:flex; flex-direction:column; gap:14px; }
+.loading-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 20px; gap:14px; }
+.spinner{ width:34px; height:34px; border:3px solid var(--blue-light); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; }
 @keyframes spin{ to{transform:rotate(360deg)} }
-
 .loading-title{ font-family:'Playfair Display',serif; font-size:16px; color:var(--text); }
 .loading-sub{ font-size:12px; color:var(--muted); }
-
-/* Messages */
 .msg{ display:flex; gap:8px; animation:msgIn 0.25s ease both; }
 @keyframes msgIn{ from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 .msg.user{ flex-direction:row-reverse; }
-
-.msg-av{
-  width:30px; height:30px; border-radius:9px;
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink:0; margin-top:2px;
-}
-
-.msg-av.bot{ background:linear-gradient(135deg,#8B4513,#e8a020); font-size:14px; }
+.msg-av{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
+.msg-av.bot{ background:linear-gradient(135deg,#8B4513,var(--gold)); font-size:14px; }
 .msg-av.user{ background:var(--blue-light); color:var(--blue-deep); font-weight:700; font-size:12px; }
-
-.bubble{
-  max-width:82%; padding:11px 15px;
-  font-size:14px; line-height:1.65; border-radius:16px;
-}
-
-.msg.bot .bubble{
-  background:var(--white); border:1px solid var(--border);
-  border-top-left-radius:4px; color:var(--text);
-  box-shadow:0 2px 8px rgba(47,107,205,0.05);
-}
-
-.msg.user .bubble{
-  background:linear-gradient(135deg,var(--blue-deep),var(--blue));
-  color:white; border-top-right-radius:4px;
-}
-
-/* Output card - for scripts/captions */
-.output-card{
-  background:var(--gold-bg); border:1px solid var(--gold-border);
-  border-radius:14px; padding:16px;
-  font-size:13px; line-height:1.7; color:var(--text);
-  margin-top:4px;
-}
-
-.output-card strong{ color:var(--blue-deep); font-weight:600; }
-
-/* Typing */
+.bubble{ max-width:82%; padding:11px 15px; font-size:14px; line-height:1.65; border-radius:16px; }
+.msg.bot .bubble{ background:var(--white); border:1px solid var(--border); border-top-left-radius:4px; color:var(--text); box-shadow:0 2px 8px rgba(47,107,205,0.05); }
+.msg.user .bubble{ background:linear-gradient(135deg,var(--blue-deep),var(--blue)); color:white; border-top-right-radius:4px; }
 .typing-wrap{ display:flex; gap:8px; align-items:center; }
-.typing-bubble{
-  padding:12px 15px; background:var(--white);
-  border:1px solid var(--border); border-radius:16px;
-  border-top-left-radius:4px; display:flex; gap:4px;
-}
-
-.t-dot{
-  width:6px; height:6px; border-radius:50%;
-  background:var(--blue-mid); animation:bounce 1.2s ease-in-out infinite;
-}
-
+.typing-bubble{ padding:12px 15px; background:var(--white); border:1px solid var(--border); border-radius:16px; border-top-left-radius:4px; display:flex; gap:4px; }
+.t-dot{ width:6px; height:6px; border-radius:50%; background:var(--blue-mid); animation:bounce 1.2s ease-in-out infinite; }
 .t-dot:nth-child(2){ animation-delay:0.2s; }
 .t-dot:nth-child(3){ animation-delay:0.4s; }
-
-@keyframes bounce{
-  0%,60%,100%{transform:translateY(0)}
-  30%{transform:translateY(-5px)}
-}
-
-/* Quick prompts */
-.prompts-wrap{
-  padding-left:38px; display:flex; flex-direction:column; gap:7px;
-  animation:msgIn 0.3s 0.2s ease both; opacity:0; animation-fill-mode:both;
-}
-
-.prompt-btn{
-  background:var(--blue-light); border:1px solid var(--blue-mid);
-  border-radius:18px; padding:8px 15px;
-  font-size:13px; color:var(--blue-deep);
-  cursor:pointer; text-align:left;
-  font-family:'DM Sans',sans-serif; font-weight:400;
-  transition:all 0.18s; line-height:1.4;
-}
-
+@keyframes bounce{ 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
+.prompts-wrap{ padding-left:38px; display:flex; flex-direction:column; gap:7px; animation:msgIn 0.3s 0.2s ease both; opacity:0; animation-fill-mode:both; }
+.prompt-btn{ background:var(--blue-light); border:1px solid var(--blue-mid); border-radius:18px; padding:8px 15px; font-size:13px; color:var(--blue-deep); cursor:pointer; text-align:left; font-family:'DM Sans',sans-serif; transition:all 0.18s; line-height:1.4; }
 .prompt-btn:hover{ background:var(--blue); color:white; border-color:var(--blue); }
-
-/* Input */
-.input-area{
-  flex-shrink:0; background:var(--white);
-  border-top:1px solid var(--border);
-  padding:10px 16px 16px;
-}
-
-.input-inner{
-  max-width:480px; margin:0 auto;
-  display:flex; gap:8px; align-items:flex-end;
-}
-
-textarea{
-  flex:1; background:var(--bg);
-  border:1.5px solid var(--border); border-radius:13px;
-  padding:11px 14px;
-  font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text);
-  outline:none; resize:none;
-  min-height:46px; max-height:110px; line-height:1.5;
-  transition:border-color 0.2s, box-shadow 0.2s;
-}
-
-textarea:focus{
-  border-color:var(--blue-mid);
-  box-shadow:0 0 0 3px rgba(47,107,205,0.08);
-  background:white;
-}
-
+.input-area{ flex-shrink:0; background:var(--white); border-top:1px solid var(--border); padding:10px 16px 16px; }
+.input-inner{ max-width:480px; margin:0 auto; display:flex; gap:8px; align-items:flex-end; }
+textarea{ flex:1; background:var(--bg); border:1.5px solid var(--border); border-radius:13px; padding:11px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); outline:none; resize:none; min-height:46px; max-height:110px; line-height:1.5; transition:border-color 0.2s, box-shadow 0.2s; }
+textarea:focus{ border-color:var(--blue-mid); box-shadow:0 0 0 3px rgba(47,107,205,0.08); background:white; }
 textarea::placeholder{ color:#b0c0d8; }
-
-.send{
-  width:46px; height:46px; border-radius:12px;
-  background:linear-gradient(135deg,var(--blue-deep),var(--blue));
-  border:none; cursor:pointer;
-  display:flex; align-items:center; justify-content:center;
-  flex-shrink:0;
-  box-shadow:0 3px 10px rgba(47,107,205,0.3);
-  transition:opacity 0.2s, transform 0.15s;
-}
-
+.send{ width:46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--blue-deep),var(--blue)); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 10px rgba(47,107,205,0.3); transition:opacity 0.2s, transform 0.15s; }
 .send:hover{ opacity:0.9; transform:translateY(-1px); }
-.send:active{ transform:translateY(0); }
 .send:disabled{ opacity:0.45; cursor:not-allowed; transform:none; }
 .send svg{ width:17px; height:17px; fill:white; }
-
 </style>
 </head>
 
@@ -296,7 +86,6 @@ textarea::placeholder{ color:#b0c0d8; }
   </div>
 </div>
 
-<!-- Sessions panel -->
 <div class="sessions-panel" id="sessionsPanel">
   <div class="sessions-label">Your Sessions</div>
   <div class="sessions-list" id="sessionsList"></div>
@@ -307,21 +96,14 @@ textarea::placeholder{ color:#b0c0d8; }
     <div class="loading-wrap" id="loadingWrap">
       <div class="spinner"></div>
       <div class="loading-title">Setting up your studio</div>
-      <div class="loading-sub">Getting Vikram ready...</div>
+      <div class="loading-sub">Getting ready...</div>
     </div>
   </div>
 </div>
 
 <div class="input-area">
   <div class="input-inner">
-    <textarea
-      id="inputBox"
-      placeholder="What's your reel idea? Or type 'no idea' and I'll suggest something..."
-      rows="1"
-      disabled
-      onkeydown="handleKey(event)"
-      oninput="autoResize(this)"
-    ></textarea>
+    <textarea id="inputBox" placeholder="What's your reel idea? Or type 'no idea' and I'll suggest something..." rows="1" disabled onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
     <button class="send" id="sendBtn" onclick="sendMessage()" disabled>
       <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
     </button>
@@ -355,11 +137,30 @@ async function init(){
   creatorProfile = profile
   userInitial = profile.name ? profile.name.charAt(0).toUpperCase() : '?'
 
-  // Load past sessions
+  systemPrompt = buildSystemPrompt()
+
+  // Load sessions panel
   await loadSessions()
 
-  // Start new session
-  await startNewSession()
+  // Check if there's a session from today
+  const today = new Date().toISOString().split('T')[0]
+
+  const { data: todaySession } = await client
+    .from('preproduction_sessions')
+    .select('*')
+    .eq('user_id', userId)
+    .gte('created_at', today + 'T00:00:00')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single()
+
+  if(todaySession){
+    // Load today's existing session — no new opening message
+    await loadSession(todaySession.id, todaySession.title)
+  } else {
+    // No session today — start fresh
+    await startNewSession()
+  }
 }
 
 async function loadSessions(){
@@ -377,7 +178,7 @@ async function loadSessions(){
   panel.classList.add('visible')
 
   list.innerHTML = sessions.map(s => `
-    <div class="session-pill" onclick="loadSession('${s.id}', '${s.title?.replace(/'/g,"\\'")||"Session"}')" id="pill-${s.id}">
+    <div class="session-pill" onclick="loadSession('${s.id}', '${(s.title||'Session').replace(/'/g,"\\'")}')" id="pill-${s.id}">
       ${s.title || 'Session'}
     </div>
   `).join('')
@@ -386,28 +187,31 @@ async function loadSessions(){
 async function loadSession(sid, title){
   sessionId = sid
 
-  // Update active pill
   document.querySelectorAll('.session-pill').forEach(p => p.classList.remove('active'))
   const pill = document.getElementById(`pill-${sid}`)
   if(pill) pill.classList.add('active')
 
-  // Load messages for this session
   const { data: messages } = await client
     .from('ai_conversations')
     .select('*')
     .eq('session_id', sid)
     .order('created_at', { ascending: true })
 
-  if(!messages || messages.length === 0) return
-
-  // Rebuild chat
   document.getElementById('loadingWrap')?.remove()
   document.getElementById('chatInner').innerHTML = ''
   chatHistory = []
+  promptsShown = false
 
-  for(const msg of messages){
-    addMessage(msg.role === 'user' ? 'user' : 'bot', msg.content)
-    chatHistory.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content })
+  if(messages && messages.length > 0){
+    for(const msg of messages){
+      addMessage(msg.role === 'user' ? 'user' : 'bot', msg.content)
+      chatHistory.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content })
+    }
+  } else {
+    // Empty session — show opening
+    const reply = await callAPI([{ role:'user', content: buildOpeningPrompt() }], true)
+    addMessage('bot', reply)
+    showPrompts()
   }
 
   setInputEnabled(true)
@@ -418,7 +222,6 @@ async function startNewSession(){
   chatHistory = []
   sessionId = crypto.randomUUID()
 
-  // Create session in DB
   const title = `Session ${new Date().toLocaleDateString('en-IN', {day:'numeric',month:'short'})}`
 
   await client.from('preproduction_sessions').insert({
@@ -428,25 +231,15 @@ async function startNewSession(){
     niche: creatorProfile?.category || 'General'
   })
 
-  // Build system prompt
-  systemPrompt = buildSystemPrompt()
-
-  // Clear chat
   document.getElementById('loadingWrap')?.remove()
   document.getElementById('chatInner').innerHTML = ''
 
-  // Get opening message
-  const openingMsg = buildOpeningPrompt()
-  const reply = await callAPI([{ role:'user', content: openingMsg }], true)
-
-  document.getElementById('loadingWrap')?.remove()
+  const reply = await callAPI([{ role:'user', content: buildOpeningPrompt() }], true)
   addMessage('bot', reply)
   showPrompts()
 
-  // Refresh sessions panel
   await loadSessions()
 
-  // Mark new session as active
   document.querySelectorAll('.session-pill').forEach(p => p.classList.remove('active'))
   const pill = document.getElementById(`pill-${sessionId}`)
   if(pill) pill.classList.add('active')
@@ -458,37 +251,34 @@ function buildSystemPrompt(){
   const niche = creatorProfile?.category || 'General'
   const name = creatorProfile?.name?.split(' ')[0] || 'Creator'
 
-  return `You are Vikram — the world's best Instagram content strategist and pre-production expert with deep knowledge of the Indian Instagram ecosystem. You help creators plan their reels BEFORE they film them.
+  return `You are Vikram — the world's best Instagram content strategist and pre-production expert. You help creators plan their reels BEFORE they film them.
 
-Your job is to take a creator's idea (or give them an idea if they have none) and give them everything they need to create a viral reel:
-
-1. **Hook** — 3 different opening line options for the first 3 seconds
-2. **Full Script** — natural, conversational, optimised for the creator's niche and Indian audience
-3. **Background Audio** — specific suggestion: trending audio name, or "no music needed" with reason
-4. **Captions** — 3-4 different caption options, each with a different angle
-5. **Hashtags** — 20 hashtags: mix of niche, medium and broad, India-specific
-6. **Filming Tips** — 3-4 specific tips for this reel — lighting, angle, what to wear, location
-7. **Viral Potential** — honest assessment and what would make it go viral
+Your job is to take a creator's idea (or give them one if they have none) and give them everything they need:
+1. Hook — 3 different opening line options for the first 3 seconds
+2. Full Script — natural, conversational, optimised for the niche
+3. Background Audio — specific suggestion or "no music needed" with reason
+4. Captions — 3-4 different caption options
+5. Hashtags — 20 hashtags: mix of niche, medium and broad
+6. Filming Tips — 3-4 specific tips for this reel
+7. Viral Potential — honest assessment
 
 Creator details:
 - Name: ${name}
 - Niche: ${niche}
-- Platform: Instagram (Indian audience)
+- Platform: Instagram
 
 Rules:
 - Be specific — no generic advice
-- Reference Indian audience psychology and trends
-- If they have no idea — suggest 3 content ideas based on their niche that are trending right now
+- If they have no idea — suggest 3 content ideas based on their niche that are trending
 - Keep responses structured with bold headers
-- Be enthusiastic but honest — if an idea won't work, say so and suggest a better angle
+- Be enthusiastic but honest
 - Under 300 words per response unless giving a full script`
 }
 
 function buildOpeningPrompt(){
   const name = creatorProfile?.name?.split(' ')[0] || 'there'
   const niche = creatorProfile?.category || 'your niche'
-
-  return `Greet ${name} warmly. Tell them this is their pre-production studio — they should tell you their reel idea and you'll give them everything they need before they hit record. Ask them what's on their mind — if they have a reel idea, share it. If not, you have some great ideas for ${niche} creators right now. Keep it short, 2-3 sentences, excited energy.`
+  return `Greet ${name} warmly. Tell them this is their pre-production studio — they should share their reel idea and you'll give them everything they need before they hit record. Ask what's on their mind — if they have an idea share it, if not you have great ideas for ${niche} creators. Keep it short, 2-3 sentences, excited energy.`
 }
 
 function showPrompts(){
@@ -498,19 +288,12 @@ function showPrompts(){
   const niche = (creatorProfile?.category || '').toLowerCase()
   let prompts = []
 
-  if(niche.includes('beauty') || niche.includes('makeup')){
-    prompts = ["I want to do a before/after makeup transformation reel", "I have no idea — suggest something trending in beauty", "I want to do a product review reel"]
-  } else if(niche.includes('food')){
-    prompts = ["I want to do a quick recipe reel", "I have no idea — suggest something trending in food", "I want to do a restaurant review reel"]
-  } else if(niche.includes('fitness')){
-    prompts = ["I want to do a workout tips reel", "I have no idea — suggest something trending in fitness", "I want to do a transformation story reel"]
-  } else if(niche.includes('education')){
-    prompts = ["I want to do a quick tips reel", "I have no idea — suggest something trending in education", "I want to explain a concept in 60 seconds"]
-  } else if(niche.includes('finance')){
-    prompts = ["I want to do a money saving tips reel", "I have no idea — suggest something trending in finance", "I want to bust a common finance myth"]
-  } else {
-    prompts = ["I have a reel idea — let me share it", "I have no idea — suggest something for my niche", "I want to do a trending reel format"]
-  }
+  if(niche.includes('beauty') || niche.includes('makeup')) prompts = ["I want to do a before/after transformation reel", "I have no idea — suggest something trending in beauty", "I want to do a product review reel"]
+  else if(niche.includes('food')) prompts = ["I want to do a quick recipe reel", "I have no idea — suggest something trending in food", "I want to do a restaurant review reel"]
+  else if(niche.includes('fitness')) prompts = ["I want to do a workout tips reel", "I have no idea — suggest something trending in fitness", "I want to do a transformation story reel"]
+  else if(niche.includes('education')) prompts = ["I want to do a quick tips reel", "I have no idea — suggest something trending", "I want to explain a concept in 60 seconds"]
+  else if(niche.includes('finance')) prompts = ["I want to do a money saving tips reel", "I have no idea — suggest something trending in finance", "I want to bust a common finance myth"]
+  else prompts = ["I have a reel idea — let me share it", "I have no idea — suggest something for my niche", "I want to do a trending reel format"]
 
   const wrap = document.createElement('div')
   wrap.className = 'prompts-wrap'
@@ -520,10 +303,7 @@ function showPrompts(){
     const btn = document.createElement('button')
     btn.className = 'prompt-btn'
     btn.textContent = p
-    btn.onclick = () => {
-      document.getElementById('promptsWrap')?.remove()
-      handleUserMessage(p)
-    }
+    btn.onclick = () => { document.getElementById('promptsWrap')?.remove(); handleUserMessage(p) }
     wrap.appendChild(btn)
   })
 
@@ -544,28 +324,23 @@ async function sendMessage(){
 async function handleUserMessage(text){
   addMessage('user', text)
   chatHistory.push({ role:'user', content:text })
-
   setInputEnabled(false)
   const tid = showTyping()
-
   const reply = await callAPI(chatHistory)
-
   document.getElementById(tid)?.remove()
   addMessage('bot', reply)
   chatHistory.push({ role:'assistant', content:reply })
-
   setInputEnabled(true)
   document.getElementById('inputBox').focus()
 }
 
-async function callAPI(messages, isOpening = false){
+async function callAPI(messages, isOpening=false){
   try {
     const res = await fetch('/api/preproduction', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({
-        systemPrompt,
-        messages,
+        systemPrompt, messages,
         user_id: isOpening ? null : userId,
         session_id: isOpening ? null : sessionId
       })
@@ -582,17 +357,12 @@ function addMessage(role, text){
   const inner = document.getElementById('chatInner')
   const msg = document.createElement('div')
   msg.className = `msg ${role}`
-
   const av = document.createElement('div')
   av.className = `msg-av ${role}`
   av.textContent = role === 'bot' ? '🎬' : userInitial
-
   const bubble = document.createElement('div')
   bubble.className = 'bubble'
-  bubble.innerHTML = text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>')
-
+  bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')
   msg.appendChild(av)
   msg.appendChild(bubble)
   inner.appendChild(msg)
@@ -602,19 +372,15 @@ function addMessage(role, text){
 function showTyping(){
   const id = 'typing-'+Date.now()
   const inner = document.getElementById('chatInner')
-
   const wrap = document.createElement('div')
   wrap.className = 'typing-wrap'
   wrap.id = id
-
   const av = document.createElement('div')
   av.className = 'msg-av bot'
   av.textContent = '🎬'
-
   const bubble = document.createElement('div')
   bubble.className = 'typing-bubble'
   bubble.innerHTML = '<div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>'
-
   wrap.appendChild(av)
   wrap.appendChild(bubble)
   inner.appendChild(wrap)
@@ -644,6 +410,5 @@ function autoResize(el){
 init()
 
 </script>
-
 </body>
 </html>
