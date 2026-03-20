@@ -11,106 +11,55 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 
 <style>
-
 *{ margin:0; padding:0; box-sizing:border-box; }
-
 :root{
-  --bg:#f0f5fb;
-  --white:#ffffff;
-  --blue:#2f6bcd;
-  --blue-deep:#0b487f;
-  --blue-light:#e8f0fc;
-  --blue-mid:#b8cef5;
-  --text:#1a2540;
-  --muted:#0b487f;
-  --border:#dce8f8;
+  --bg:#f0f5fb; --white:#ffffff; --blue:#2f6bcd; --blue-deep:#0b487f;
+  --blue-light:#e8f0fc; --blue-mid:#b8cef5; --text:#1a2540; --muted:#0b487f; --border:#dce8f8;
 }
-
-html, body{ height:100%; overflow:hidden; }
-
-body{
-  font-family:'DM Sans',sans-serif;
-  background:var(--bg); color:var(--text);
-  display:flex; flex-direction:column;
-}
-
-.nav{
-  display:flex; align-items:center; gap:12px;
-  padding:14px 16px; background:var(--white);
-  border-bottom:1px solid var(--border); flex-shrink:0;
-}
-
+html,body{ height:100%; overflow:hidden; }
+body{ font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); display:flex; flex-direction:column; }
+.nav{ display:flex; align-items:center; gap:12px; padding:14px 16px; background:var(--white); border-bottom:1px solid var(--border); flex-shrink:0; }
 .nav-back{ background:none; border:none; font-size:22px; cursor:pointer; color:var(--muted); line-height:1; padding:2px 6px 2px 0; }
-
-.vikram-avatar{
-  width:38px; height:38px; border-radius:11px;
-  background:linear-gradient(135deg,var(--blue-deep),var(--blue));
-  display:flex; align-items:center; justify-content:center;
-  font-size:17px; flex-shrink:0;
-  box-shadow:0 4px 12px rgba(47,107,205,0.25);
-}
-
+.vikram-avatar{ width:38px; height:38px; border-radius:11px; background:linear-gradient(135deg,var(--blue-deep),var(--blue)); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; box-shadow:0 4px 12px rgba(47,107,205,0.25); }
 .nav-name{ font-family:'Playfair Display',serif; font-size:16px; font-weight:600; color:var(--text); line-height:1.2; }
 .nav-sub{ font-size:11px; color:var(--muted); display:flex; align-items:center; gap:4px; margin-top:1px; }
 .online-dot{ width:5px; height:5px; border-radius:50%; background:#2e9e6b; }
-
-.context-banner{
-  background:var(--blue-light); border-bottom:1px solid var(--blue-mid);
-  padding:10px 16px; font-size:12px; color:var(--blue-deep);
-  text-align:center; flex-shrink:0;
-}
-
+.context-banner{ background:var(--blue-light); border-bottom:1px solid var(--blue-mid); padding:10px 16px; font-size:12px; color:var(--blue-deep); text-align:center; flex-shrink:0; }
 .chat-scroll{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; }
 .chat-scroll::-webkit-scrollbar{ width:0; }
-
-.chat-inner{
-  max-width:480px; margin:0 auto;
-  padding:20px 16px 12px;
-  display:flex; flex-direction:column; gap:14px;
-}
-
+.chat-inner{ max-width:480px; margin:0 auto; padding:20px 16px 12px; display:flex; flex-direction:column; gap:14px; }
 .loading-wrap{ display:flex; flex-direction:column; align-items:center; justify-content:center; padding:80px 20px; gap:14px; }
 .spinner{ width:34px; height:34px; border:3px solid var(--blue-light); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; }
 @keyframes spin{ to{transform:rotate(360deg)} }
 .loading-title{ font-family:'Playfair Display',serif; font-size:16px; color:var(--text); }
 .loading-sub{ font-size:12px; color:var(--muted); }
-
 .msg{ display:flex; gap:8px; animation:msgIn 0.25s ease both; }
 @keyframes msgIn{ from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 .msg.user{ flex-direction:row-reverse; }
-
-.msg-av{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; font-size:13px; }
+.msg-av{ width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:2px; }
 .msg-av.vikram{ background:linear-gradient(135deg,var(--blue-deep),var(--blue)); font-size:14px; }
 .msg-av.user{ background:var(--blue-light); color:var(--blue-deep); font-weight:700; font-size:12px; }
-
 .bubble{ max-width:78%; padding:11px 15px; font-size:14px; line-height:1.65; border-radius:16px; }
 .msg.vikram .bubble{ background:var(--white); border:1px solid var(--border); border-top-left-radius:4px; color:var(--text); box-shadow:0 2px 8px rgba(47,107,205,0.05); }
 .msg.user .bubble{ background:linear-gradient(135deg,var(--blue-deep),var(--blue)); color:white; border-top-right-radius:4px; }
-
 .typing-wrap{ display:flex; gap:8px; align-items:center; }
 .typing-bubble{ padding:12px 15px; background:var(--white); border:1px solid var(--border); border-radius:16px; border-top-left-radius:4px; display:flex; gap:4px; }
 .t-dot{ width:6px; height:6px; border-radius:50%; background:var(--blue-mid); animation:bounce 1.2s ease-in-out infinite; }
 .t-dot:nth-child(2){ animation-delay:0.2s; }
 .t-dot:nth-child(3){ animation-delay:0.4s; }
 @keyframes bounce{ 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
-
 .prompts-wrap{ padding-left:38px; display:flex; flex-direction:column; gap:7px; animation:msgIn 0.3s 0.2s ease both; opacity:0; animation-fill-mode:both; }
-.prompt-btn{ background:var(--blue-light); border:1px solid var(--blue-mid); border-radius:18px; padding:8px 15px; font-size:13px; color:var(--blue-deep); cursor:pointer; text-align:left; font-family:'DM Sans',sans-serif; font-weight:400; transition:all 0.18s; line-height:1.4; }
+.prompt-btn{ background:var(--blue-light); border:1px solid var(--blue-mid); border-radius:18px; padding:8px 15px; font-size:13px; color:var(--blue-deep); cursor:pointer; text-align:left; font-family:'DM Sans',sans-serif; transition:all 0.18s; line-height:1.4; }
 .prompt-btn:hover{ background:var(--blue); color:white; border-color:var(--blue); }
-
 .input-area{ flex-shrink:0; background:var(--white); border-top:1px solid var(--border); padding:10px 16px 16px; }
 .input-inner{ max-width:480px; margin:0 auto; display:flex; gap:8px; align-items:flex-end; }
-
 textarea{ flex:1; background:var(--bg); border:1.5px solid var(--border); border-radius:13px; padding:11px 14px; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text); outline:none; resize:none; min-height:46px; max-height:110px; line-height:1.5; transition:border-color 0.2s, box-shadow 0.2s; }
 textarea:focus{ border-color:var(--blue-mid); box-shadow:0 0 0 3px rgba(47,107,205,0.08); background:white; }
 textarea::placeholder{ color:#b0c0d8; }
-
 .send{ width:46px; height:46px; border-radius:12px; background:linear-gradient(135deg,var(--blue-deep),var(--blue)); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 10px rgba(47,107,205,0.3); transition:opacity 0.2s, transform 0.15s; }
 .send:hover{ opacity:0.9; transform:translateY(-1px); }
-.send:active{ transform:translateY(0); }
 .send:disabled{ opacity:0.45; cursor:not-allowed; transform:none; }
 .send svg{ width:17px; height:17px; fill:white; }
-
 </style>
 </head>
 
@@ -157,7 +106,7 @@ let promptsShown = false
 let isCompetitorContext = false
 let backPage = 'dashboard.html'
 let userId = null
-let sessionId = crypto.randomUUID()
+let sessionId = null
 
 function goBack(){ window.location = backPage }
 
@@ -174,6 +123,17 @@ async function init(){
   if(isCompetitorContext){
     backPage = 'competitor.html'
     document.getElementById('contextBanner').style.display = 'block'
+    // Always fresh session for competitor context
+    sessionId = crypto.randomUUID()
+  } else {
+    // Reuse today's session if it exists
+    const stored = sessionStorage.getItem('vikramSessionId')
+    if(stored){
+      sessionId = stored
+    } else {
+      sessionId = crypto.randomUUID()
+      sessionStorage.setItem('vikramSessionId', sessionId)
+    }
   }
 
   const { data: profile } = await client
@@ -204,10 +164,28 @@ async function init(){
 
   systemPrompt = buildSystemPrompt(profile, snapshot, metrics, competitorContext)
 
-  await loadOpening(profile, isCompetitorContext, competitorContext)
+  // Check for existing messages in this session
+  const { data: existingMessages } = await client
+    .from('ai_conversations')
+    .select('*')
+    .eq('session_id', sessionId)
+    .eq('feature', 'vikram')
+    .order('created_at', { ascending: true })
 
-  document.getElementById('inputBox').disabled = false
-  document.getElementById('sendBtn').disabled = false
+  document.getElementById('loadingWrap').remove()
+
+  if(existingMessages && existingMessages.length > 0 && !isCompetitorContext){
+    // Restore previous conversation — no new opening message
+    existingMessages.forEach(msg => {
+      addMessage(msg.role === 'user' ? 'user' : 'vikram', msg.content)
+      history.push({ role: msg.role === 'assistant' ? 'assistant' : 'user', content: msg.content })
+    })
+  } else {
+    // Fresh session — generate opening message
+    await loadOpening(profile, isCompetitorContext, competitorContext)
+  }
+
+  setInputEnabled(true)
   document.getElementById('inputBox').focus()
 }
 
@@ -218,24 +196,21 @@ function buildSystemPrompt(profile, snap, metrics, competitorContext){
 
   let competitorSection = ''
   if(competitorContext){
-    competitorSection = `
-
-COMPETITOR COMPARISON CONTEXT:
+    competitorSection = `\n\nCOMPETITOR COMPARISON CONTEXT:
 They just compared themselves with @${competitorContext.competitor}.
 My followers: ${competitorContext.myFollowers} vs Competitor: ${competitorContext.theirFollowers}
 My ER: ${competitorContext.myER}% vs Competitor: ${competitorContext.theirER}%
 Vikram's previous analysis: ${competitorContext.analysis}`
   }
 
-  return `You are Vikram — the world's best Instagram growth strategist with deep knowledge of the Indian Instagram ecosystem. You understand Indian influencer culture, how Indian audiences engage, brand deal landscape in India, regional content dynamics, and what actually works for Indian creators in ${new Date().getFullYear()}.
+  return `You are Vikram — the world's best Instagram growth strategist. You understand creator psychology, audience behaviour, and what the algorithm actually rewards.
 
-You speak with quiet confidence — direct, sharp, no fluff. You interpret data, never just recite it. One clear insight at a time. Sound like the smartest person in the room who doesn't need to prove it.
+You speak with quiet confidence — direct, sharp, no fluff. One clear insight at a time.
 
 Hard rules:
-- Use short bullet points for recommendations — max 3 points per response
+- Short bullet points for recommendations — max 3 points per response
 - Each point one clear sentence
 - Keep total response under 100 words unless asked for more
-- Comment on bio, followers, posting frequency and profile completeness when relevant
 - Be honest even if uncomfortable
 - Never say "Yo", "Bro", "Great question", "Certainly", "Absolutely"
 - Always interpret data — never just repeat numbers back
@@ -251,8 +226,7 @@ External Link: ${snap?.external_url||'None'}
 
 PERFORMANCE (last ${metrics?.totalPostsAnalyzed||0} posts):
 ER: ${metrics?.engagementRate||0}% | Avg Likes: ${metrics?.avgLikes||0} | Avg Comments: ${metrics?.avgComments||0}
-Avg Video Views: ${metrics?.avgVideoViews||0} | Reach Rate: ${metrics?.reachRate||0}%
-Like-to-View: ${metrics?.likeToViewRatio||0}% | Comment-to-View: ${metrics?.commentToViewRatio||0}%
+Avg Video Views: ${metrics?.avgVideoViews||0}
 Posts/Week: ${metrics?.postsPerWeek||0} | Best Day: ${metrics?.bestDay||'Unknown'}
 Best Type: ${metrics?.bestPostType||'Unknown'} | Top Tags: ${metrics?.topHashtags?.map(h=>'#'+h.tag).join(', ')||'None'}
 
@@ -265,14 +239,12 @@ async function loadOpening(profile, isCompetitor, competitorContext){
 
   let openingMsg
   if(isCompetitor && competitorContext){
-    openingMsg = `Write a short opening message to ${firstName} about their competitor comparison with @${competitorContext.competitor}. Reference one specific finding from the comparison — something actionable. End with one focused question. Max 2-3 sentences. No intro.`
+    openingMsg = `Write a short opening message to ${firstName} about their competitor comparison with @${competitorContext.competitor}. Reference one specific finding. End with one focused question. Max 2-3 sentences.`
   } else {
-    openingMsg = `Write your opening message to ${firstName}. You've just reviewed their Instagram profile and data. Pick the single most interesting or concerning thing you noticed — something specific from their actual numbers or content. Lead with that insight directly. End with one focused question. Max 2-3 sentences. No intro.`
+    openingMsg = `Write your opening message to ${firstName}. You've reviewed their Instagram data. Pick the single most interesting thing you noticed. Lead with that insight directly. End with one focused question. Max 2-3 sentences.`
   }
 
   const reply = await callVikram([{ role:'user', content: openingMsg }], true)
-
-  document.getElementById('loadingWrap').remove()
   addMessage('vikram', reply)
   showPrompts(profile.category, isCompetitor, competitorContext)
 }
@@ -282,30 +254,17 @@ function showPrompts(category, isCompetitor, competitorContext){
   promptsShown = true
 
   let prompts = []
-
   if(isCompetitor && competitorContext){
-    prompts = [
-      `How do I close the gap with @${competitorContext.competitor}?`,
-      "What's the one thing they're doing better than me?",
-      "Should I even be comparing with them?"
-    ]
+    prompts = [`How do I close the gap with @${competitorContext.competitor}?`, "What's the one thing they're doing better than me?", "Should I even be comparing with them?"]
   } else {
     const cat = (category||'').toLowerCase()
-    if(cat.includes('beauty')||cat.includes('fashion')){
-      prompts = ["Why aren't my reels getting views?", "How do I attract brand deals?", "What should I post this week?"]
-    } else if(cat.includes('fitness')){
-      prompts = ["How do I grow faster in fitness?", "What content is working right now?", "Am I posting enough?"]
-    } else if(cat.includes('food')){
-      prompts = ["Reels or carousels — what should I focus on?", "How do I get more comments?", "What food content goes viral?"]
-    } else if(cat.includes('education')||cat.includes('tech')){
-      prompts = ["What content format works best for me?", "How do I make my reels more shareable?", "Am I using hashtags right?"]
-    } else if(cat.includes('finance')){
-      prompts = ["How do I grow in the finance niche?", "How do I convert followers to clients?", "What topics are working right now?"]
-    } else if(cat.includes('travel')){
-      prompts = ["What's working best for travel creators?", "How do I grow my reach beyond followers?", "Am I posting at the right time?"]
-    } else {
-      prompts = ["How's my engagement really doing?", "What should I be posting more of?", "Why aren't my reels getting more views?"]
-    }
+    if(cat.includes('beauty')||cat.includes('fashion')) prompts = ["Why aren't my reels getting views?", "How do I attract brand deals?", "What should I post this week?"]
+    else if(cat.includes('fitness')) prompts = ["How do I grow faster?", "What content is working right now?", "Am I posting enough?"]
+    else if(cat.includes('food')) prompts = ["Reels or carousels — what should I focus on?", "How do I get more comments?", "What food content goes viral?"]
+    else if(cat.includes('education')||cat.includes('tech')) prompts = ["What format works best for me?", "How do I make my reels more shareable?", "Am I using hashtags right?"]
+    else if(cat.includes('finance')) prompts = ["How do I grow in the finance niche?", "How do I convert followers to clients?", "What topics are working now?"]
+    else if(cat.includes('travel')) prompts = ["What's working for travel creators?", "How do I grow my reach?", "Am I posting at the right time?"]
+    else prompts = ["How's my engagement really doing?", "What should I be posting more of?", "Why aren't my reels getting more views?"]
   }
 
   const wrap = document.createElement('div')
@@ -316,10 +275,7 @@ function showPrompts(category, isCompetitor, competitorContext){
     const btn = document.createElement('button')
     btn.className = 'prompt-btn'
     btn.textContent = p
-    btn.onclick = () => {
-      document.getElementById('promptsWrap')?.remove()
-      handleUserMessage(p)
-    }
+    btn.onclick = () => { document.getElementById('promptsWrap')?.remove(); handleUserMessage(p) }
     wrap.appendChild(btn)
   })
 
@@ -350,14 +306,13 @@ async function handleUserMessage(text){
   document.getElementById('inputBox').focus()
 }
 
-async function callVikram(messages, isOpening = false){
+async function callVikram(messages, isOpening=false){
   try {
     const res = await fetch('/api/vikram', {
       method:'POST',
       headers:{ 'Content-Type':'application/json' },
       body: JSON.stringify({
-        systemPrompt,
-        messages,
+        systemPrompt, messages,
         user_id: isOpening ? null : userId,
         session_id: isOpening ? null : sessionId
       })
@@ -374,17 +329,12 @@ function addMessage(role, text){
   const inner = document.getElementById('chatInner')
   const msg = document.createElement('div')
   msg.className = `msg ${role}`
-
   const av = document.createElement('div')
   av.className = `msg-av ${role}`
   av.textContent = role==='vikram' ? '🤖' : userInitial
-
   const bubble = document.createElement('div')
   bubble.className = 'bubble'
-  bubble.innerHTML = text
-    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br>')
-
+  bubble.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>')
   msg.appendChild(av)
   msg.appendChild(bubble)
   inner.appendChild(msg)
@@ -397,15 +347,12 @@ function showTyping(){
   const wrap = document.createElement('div')
   wrap.className = 'typing-wrap'
   wrap.id = id
-
   const av = document.createElement('div')
   av.className = 'msg-av vikram'
   av.textContent = '🤖'
-
   const bubble = document.createElement('div')
   bubble.className = 'typing-bubble'
   bubble.innerHTML = '<div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>'
-
   wrap.appendChild(av)
   wrap.appendChild(bubble)
   inner.appendChild(wrap)
@@ -435,6 +382,5 @@ function autoResize(el){
 init()
 
 </script>
-
 </body>
 </html>
